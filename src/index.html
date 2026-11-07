@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>科目三 · 夜间灯光模拟考试</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-view="home">
+
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-wheel" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M12 3.4v5.9M4.4 15.4l5.3-2.1M19.6 15.4l-5.3-2.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  </symbol>
+  <symbol id="i-help" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M9.6 9.2A2.6 2.6 0 0 1 14.8 10c0 1.7-2.8 2-2.8 3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M12 17.1v.1" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M15.5 8.6a5 5 0 0 1 0 6.8M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24">
+    <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-x" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24">
+    <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24">
+    <path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M12 7v5.4l3.4 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M15.5 8.6a5 5 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><svg><use href="#i-wheel"/></svg></div>
+      <div class="brand-text">
+        <strong><span class="brand-full">科目三 · 夜间灯光模拟</span><span class="brand-short">夜间灯光模拟</span></strong>
+        <span class="brand-sub">C1 / C2 灯光考试训练</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="voice-pill" id="voicePill" type="button" title="点击试听语音">
+        <i class="voice-dot"></i><span id="voicePillText">正在检测语音…</span>
+      </button>
+      <button class="icon-btn" id="bankBtn" type="button" title="题库速查">
+        <svg><use href="#i-book"/></svg><span>题库</span>
+      </button>
+      <button class="icon-btn" id="helpBtn" type="button" title="考试规则">
+        <svg><use href="#i-help"/></svg><span>规则</span>
+      </button>
+      <button class="icon-btn" id="soundBtn" type="button" title="音效开关" aria-pressed="true">
+        <svg><use href="#i-volume"/></svg>
+      </button>
+      <button class="icon-btn" id="fullBtn" type="button" title="全屏">
+        <svg><use href="#i-expand"/></svg>
+      </button>
+      <button class="exit-btn" id="exitBtn" type="button" hidden>退出考试</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-shell">
+      <div class="stage" id="stage">
+        <svg id="scene" class="scene" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice"
+             data-main="0" data-beam="low" data-fog="0" data-hazard="0" role="img"
+             aria-label="夜间道路上的考试车与前照灯灯光示意">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#02040a"/>
+              <stop offset=".52" stop-color="#06101e"/>
+              <stop offset="1" stop-color="#15263d"/>
+            </linearGradient>
+            <linearGradient id="roadGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1a212c"/>
+              <stop offset=".3" stop-color="#10151d"/>
+              <stop offset="1" stop-color="#070a0f"/>
+            </linearGradient>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2b3b53"/>
+              <stop offset=".38" stop-color="#172233"/>
+              <stop offset=".72" stop-color="#0d1521"/>
+              <stop offset="1" stop-color="#070b12"/>
+            </linearGradient>
+            <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1c3149"/>
+              <stop offset=".5" stop-color="#0a1626"/>
+              <stop offset="1" stop-color="#142639"/>
+            </linearGradient>
+            <linearGradient id="beamHighGrad" x1="0" y1="0" x2="1" y2=".22">
+              <stop offset="0" stop-color="#eef8ff" stop-opacity=".55"/>
+              <stop offset=".28" stop-color="#cbe8ff" stop-opacity=".28"/>
+              <stop offset=".7" stop-color="#9fd4ff" stop-opacity=".08"/>
+              <stop offset="1" stop-color="#9fd4ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="beamLowGrad" x1="0" y1="0" x2="1" y2=".55">
+              <stop offset="0" stop-color="#e9f6ff" stop-opacity=".5"/>
+              <stop offset=".35" stop-color="#c2e3ff" stop-opacity=".22"/>
+              <stop offset="1" stop-color="#9fd4ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="roadWashGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#e8f5ff" stop-opacity=".52"/>
+              <stop offset=".35" stop-color="#cfe8ff" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#cfe8ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="beamFogGrad" x1="0" y1="0" x2="1" y2=".4">
+              <stop offset="0" stop-color="#ffd88a" stop-opacity=".7"/>
+              <stop offset="1" stop-color="#ffb648" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="poolGrad" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#e4f3ff" stop-opacity=".62"/>
+              <stop offset=".48" stop-color="#b6ddff" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#a8d8ff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="fogPoolGrad" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#ffd88a" stop-opacity=".38"/>
+              <stop offset=".6" stop-color="#ffb648" stop-opacity=".1"/>
+              <stop offset="1" stop-color="#ffb648" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="moonGlow" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#cfe2ff" stop-opacity=".38"/>
+              <stop offset=".42" stop-color="#9fc4ff" stop-opacity=".12"/>
+              <stop offset="1" stop-color="#9fc4ff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="cityGlow" cx=".5" cy="1" r=".7">
+              <stop offset="0" stop-color="#4f8cff" stop-opacity=".16"/>
+              <stop offset="1" stop-color="#4f8cff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="vignette" cx=".5" cy=".48" r=".72">
+              <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".38"/>
+            </radialGradient>
+            <linearGradient id="fogGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#aebecd" stop-opacity=".05"/>
+              <stop offset=".55" stop-color="#b9c6d2" stop-opacity=".16"/>
+              <stop offset="1" stop-color="#cdd6de" stop-opacity=".24"/>
+            </linearGradient>
+            <linearGradient id="hazardGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffc247" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#ff9d1f" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="blur6" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+            <filter id="blur10" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>
+            <filter id="blur14" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+            <filter id="blur26" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+            <filter id="blur40" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+            <clipPath id="roadClip"><rect x="0" y="505" width="1000" height="135"/></clipPath>
+          </defs>
+
+          <rect width="1000" height="640" fill="url(#skyGrad)"/>
+          <g id="stars" fill="#dbe9ff"></g>
+          <g id="moon">
+            <circle cx="788" cy="92" r="96" fill="url(#moonGlow)"/>
+            <circle cx="788" cy="92" r="25" fill="#e9f1ff" opacity=".9"/>
+            <circle cx="780" cy="86" r="5" fill="#c8d8f2" opacity=".35"/>
+            <circle cx="796" cy="100" r="3.4" fill="#c8d8f2" opacity=".3"/>
+          </g>
+          <path id="hills" d="M0 512 L0 486 L78 462 L150 492 L236 468 L330 498 L430 474 L520 500 L620 472 L720 496 L812 470 L900 496 L1000 474 L1000 512 Z" fill="#050a13"/>
+          <ellipse cx="300" cy="516" rx="380" ry="72" fill="url(#cityGlow)"/>
+          <g id="city" fill="#060b15">
+            <rect x="0" y="486" width="34" height="30"/>
+            <rect x="36" y="470" width="26" height="46"/>
+            <rect x="64" y="492" width="44" height="24"/>
+            <rect x="112" y="458" width="28" height="58"/>
+            <rect x="142" y="482" width="38" height="34"/>
+            <rect x="184" y="466" width="34" height="50"/>
+            <rect x="222" y="490" width="30" height="26"/>
+            <rect x="256" y="450" width="26" height="66"/>
+            <rect x="286" y="478" width="40" height="38"/>
+            <rect x="330" y="462" width="30" height="54"/>
+            <rect x="364" y="490" width="36" height="26"/>
+            <rect x="404" y="472" width="26" height="44"/>
+            <rect x="434" y="452" width="22" height="64"/>
+            <rect x="460" y="484" width="38" height="32"/>
+            <rect x="502" y="468" width="28" height="48"/>
+            <rect x="532" y="486" width="30" height="30"/>
+          </g>
+          <g id="cityWindows" fill="#ffcf7a"></g>
+          <g id="trees" fill="#04080f">
+            <path d="M58 512 L66 468 L74 512Z"/>
+            <path d="M66 512 L78 452 L90 512Z"/>
+            <path d="M84 512 L93 476 L102 512Z"/>
+            <path d="M580 512 L590 462 L600 512Z"/>
+            <path d="M596 512 L609 440 L622 512Z"/>
+            <path d="M618 512 L628 470 L638 512Z"/>
+            <path d="M670 512 L680 456 L690 512Z"/>
+            <path d="M686 512 L698 432 L710 512Z"/>
+            <path d="M706 512 L716 466 L726 512Z"/>
+            <path d="M790 512 L800 460 L810 512Z"/>
+            <path d="M806 512 L818 438 L830 512Z"/>
+            <path d="M826 512 L836 474 L846 512Z"/>
+            <path d="M900 512 L910 452 L920 512Z"/>
+            <path d="M916 512 L928 430 L940 512Z"/>
+            <path d="M936 512 L946 462 L956 512Z"/>
+          </g>
+
+          <rect y="512" width="1000" height="128" fill="url(#roadGrad)"/>
+          <line x1="0" y1="513" x2="1000" y2="513" stroke="#31435c" stroke-opacity=".5" stroke-width="1.5"/>
+          <g id="roadLines" stroke="#d3e3f5" opacity=".26">
+            <line x1="0" y1="612" x2="1000" y2="612" stroke-width="3" stroke-dasharray="52 38"/>
+            <line x1="0" y1="566" x2="1000" y2="566" stroke-width="1.6" stroke-dasharray="22 46" opacity=".5"/>
+          </g>
+
+          <g id="beams" pointer-events="none">
+            <g class="beam beam-high" filter="url(#blur14)">
+              <polygon points="548,456 920,496 920,608 548,512" fill="url(#beamHighGrad)"/>
+            </g>
+            <g class="beam beam-high-core" filter="url(#blur6)">
+              <polygon points="548,468 900,512 900,542 548,502" fill="#f2faff" opacity=".3"/>
+            </g>
+            <g class="beam beam-low" filter="url(#blur14)">
+              <polygon points="548,466 780,534 780,614 548,518" fill="url(#beamLowGrad)"/>
+            </g>
+            <g class="beam beam-fog" filter="url(#blur14)">
+              <polygon points="548,496 742,590 742,632 548,520" fill="url(#beamFogGrad)"/>
+            </g>
+            <ellipse class="beam-pool pool-near" cx="626" cy="574" rx="112" ry="25" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-low" cx="716" cy="597" rx="152" ry="30" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-mid" cx="790" cy="592" rx="182" ry="33" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-high" cx="852" cy="580" rx="184" ry="32" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-far" cx="882" cy="546" rx="158" ry="25" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-fog" cx="682" cy="612" rx="148" ry="24" fill="url(#fogPoolGrad)"/>
+          </g>
+
+          <g id="car">
+            <ellipse class="car-shadow" cx="368" cy="558" rx="214" ry="16" fill="#000" opacity=".62" filter="url(#blur14)"/>
+            <path class="car-body" d="M188 508 L188 468 Q188 450 208 444 L264 432 L314 399 Q324 391 342 391 L406 391 Q422 391 434 401 L500 439 L530 445 Q548 451 548 470 L548 508 Z" fill="url(#bodyGrad)"/>
+            <path class="car-rim" d="M208 444 L264 432 L314 399 Q324 391 342 391 L406 391 Q422 391 434 401 L500 439" fill="none" stroke="#8db7e0" stroke-opacity=".34" stroke-width="1.8" stroke-linecap="round"/>
+            <path class="car-skirt" d="M188 494 L548 494 L548 508 L188 508 Z" fill="#05080e" opacity=".85"/>
+            <g class="windows">
+              <path d="M286 430 L318 402 L356 402 L356 430 Z" fill="url(#glassGrad)" stroke="#3d5a78" stroke-opacity=".45"/>
+              <path d="M366 402 L404 402 Q414 402 421 407 L436 430 L366 430 Z" fill="url(#glassGrad)" stroke="#3d5a78" stroke-opacity=".45"/>
+              <path d="M296 426 L320 406 L348 406 L348 426 Z" fill="#7fb4dd" opacity=".07"/>
+              <path d="M376 408 L404 408 L416 424 L376 424 Z" fill="#7fb4dd" opacity=".06"/>
+            </g>
+            <path d="M361 402 L361 432" stroke="#3b4f66" stroke-opacity=".55" stroke-width="2"/>
+            <path d="M209 445 L209 500 M284 437 L284 500 M364 434 L364 500 M452 460 L452 499" stroke="#04070c" stroke-opacity=".7" stroke-width="1.6"/>
+            <path d="M340 444 L360 444" stroke="#4f6b89" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+            <path d="M278 446 L298 446" stroke="#4f6b89" stroke-width="3.4" stroke-linecap="round" opacity=".55"/>
+            <path d="M438 412 Q452 408 458 416 L448 424 L436 421 Z" fill="#101a28" stroke="#4a6a8d" stroke-opacity=".5"/>
+            <text class="car-decal" x="392" y="486" font-size="11" letter-spacing="2.5" fill="#8f7c3c" opacity=".85">教练车</text>
+
+            <g class="lights">
+              <g class="lamp lamp-tail">
+                <rect x="186" y="448" width="19" height="26" rx="6" fill="#ff3145"/>
+                <rect x="189" y="452" width="13" height="8" rx="3" fill="#ffd3d8" opacity=".8"/>
+              </g>
+              <g class="lamp lamp-turn rear-turn">
+                <rect x="184" y="478" width="15" height="10" rx="4" fill="#ffb020"/>
+              </g>
+              <g class="lamp lamp-head">
+                <rect x="528" y="450" width="19" height="18" rx="6" fill="#eaf7ff"/>
+                <rect x="531" y="453" width="14" height="7" rx="3" fill="#ffffff"/>
+              </g>
+              <g class="lamp lamp-turn front-turn">
+                <rect x="530" y="473" width="15" height="9" rx="4" fill="#ffb020"/>
+              </g>
+              <g class="lamp lamp-fog">
+                <rect x="531" y="493" width="13" height="9" rx="4" fill="#ffc247"/>
+              </g>
+              <rect class="lamp lamp-marker" x="544" y="488" width="4" height="13" rx="2" fill="#ffcf6b"/>
+              <rect class="lamp lamp-marker rear-marker" x="183" y="491" width="4" height="12" rx="2" fill="#ff5a63"/>
+              <circle class="lamp lamp-head-glow" cx="538" cy="459" r="26" fill="#dff2ff" opacity=".35" filter="url(#blur14)"/>
+              <circle class="lamp lamp-tail-glow" cx="195" cy="461" r="22" fill="#ff3145" opacity=".3" filter="url(#blur14)"/>
+            </g>
+
+            <g class="wheels">
+              <circle cx="238" cy="521" r="43" fill="#04060a"/>
+              <circle cx="238" cy="521" r="43" fill="none" stroke="#243349" stroke-width="2" opacity=".7"/>
+              <circle cx="238" cy="521" r="34" fill="#090c11"/>
+              <circle cx="238" cy="521" r="18" fill="#1b2534"/>
+              <circle cx="238" cy="521" r="7" fill="#070a10"/>
+              <path d="M238 503v36M220 521h36M225 509l26 24M251 509l-26 24" stroke="#2c3c52" stroke-width="2" opacity=".6"/>
+              <circle cx="474" cy="521" r="43" fill="#04060a"/>
+              <circle cx="474" cy="521" r="43" fill="none" stroke="#243349" stroke-width="2" opacity=".7"/>
+              <circle cx="474" cy="521" r="34" fill="#090c11"/>
+              <circle cx="474" cy="521" r="18" fill="#1b2534"/>
+              <circle cx="474" cy="521" r="7" fill="#070a10"/>
+              <path d="M474 503v36M456 521h36M461 509l26 24M487 509l-26 24" stroke="#2c3c52" stroke-width="2" opacity=".6"/>
+            </g>
+          </g>
+
+          <g id="hazardGlow" class="hazard-glow" pointer-events="none">
+            <circle cx="191" cy="465" r="34" fill="#ffb020" opacity=".5" filter="url(#blur14)"/>
+            <circle cx="540" cy="470" r="34" fill="#ffb020" opacity=".5" filter="url(#blur14)"/>
+            <ellipse cx="360" cy="600" rx="240" ry="30" fill="#ffb020" opacity=".12" filter="url(#blur26)"/>
+          </g>
+
+          <g id="fogLayer" class="fog-layer" pointer-events="none">
+            <rect width="1000" height="640" fill="url(#fogGrad)"/>
+            <ellipse cx="280" cy="560" rx="380" ry="90" fill="#c7d3dd" opacity=".2" filter="url(#blur40)"/>
+            <ellipse cx="790" cy="590" rx="420" ry="100" fill="#c7d3dd" opacity=".16" filter="url(#blur40)"/>
+            <ellipse cx="560" cy="470" rx="300" ry="70" fill="#c7d3dd" opacity=".1" filter="url(#blur40)"/>
+          </g>
+
+          <rect width="1000" height="640" fill="url(#vignette)" pointer-events="none"/>
+        </svg>
+
+        <div class="stage-badge" id="stageBadge"><i></i>夜间灯光演示</div>
+
+        <div class="hud" id="hud" hidden>
+          <div class="hud-top">
+            <div class="progress">
+              <div class="dots" id="progressDots"></div>
+              <span id="progressText">第 1 / 5 项</span>
+            </div>
+            <button class="skip-btn" id="skipBtn" type="button" hidden>跳过播报</button>
+          </div>
+          <div class="hud-main">
+            <div class="instruction">
+              <div class="instr-kicker" id="instrKicker"><i></i><span>语音指令</span></div>
+              <h2 id="instrText">请开启前照灯</h2>
+              <p id="instrSub">请按语音提示操作</p>
+            </div>
+            <div class="timer" id="timer" hidden>
+              <svg viewBox="0 0 96 96" aria-hidden="true">
+                <circle class="t-bg" cx="48" cy="48" r="41"/>
+                <circle class="t-fg" id="timerCircle" cx="48" cy="48" r="41"/>
+              </svg>
+              <div class="timer-num"><strong id="timerNum">5.0</strong><span>秒</span></div>
+              <div class="speaking-bars" id="speakingBars"><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="telltales" id="telltales" aria-label="当前灯光状态">
+          <div class="telltale" data-t="position" data-color="green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9h4l3-4h8v14H7L3 15z" opacity=".45"/><path d="M3 12h3M18 8l3-2M18 12h3M18 16l3 2"/>
+            </svg><span>示宽</span>
+          </div>
+          <div class="telltale" data-t="low" data-color="green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M14 9l7 4M14 13l7 4"/>
+            </svg><span>近光</span>
+          </div>
+          <div class="telltale" data-t="high" data-color="blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M14 12h7M14 8l7-2M14 16l7 2"/>
+            </svg><span>远光</span>
+          </div>
+          <div class="telltale" data-t="fog" data-color="amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M13 9h7M13 13h7M13 17h7"/><path d="M2 19c1.5-1.2 3-1.2 4.5 0M2 22c1.5-1.2 3-1.2 4.5 0" opacity=".6"/>
+            </svg><span>雾灯</span>
+          </div>
+          <div class="telltale" data-t="hazard" data-color="red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3.5 22 20H2z"/><path d="M12 9.5v4.8M12 17.2v.1"/>
+            </svg><span>双闪</span>
+          </div>
+        </div>
+
+        <div class="state-caption" id="stateCaption">当前灯光 <b>灯光关闭</b></div>
+
+        <div class="feedback" id="feedback" data-kind="ok" role="status" aria-live="polite">
+          <div class="fb-icon"><svg><use href="#i-check"/></svg></div>
+          <div class="fb-text"><strong>操作正确</strong><span>已开启近光灯</span></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel home-panel" id="homePanel">
+        <div class="home-hero">
+          <span class="pill">C1 / C2 · 科目三</span>
+          <h1>夜间灯光<br><em>模拟考试</em></h1>
+          <p>跟随语音指令，在 <b>5 秒</b> 内完成灯光操作。随机抽题、实时判分，还原真实夜考节奏。</p>
+          <div class="hero-stats">
+            <div><strong>13</strong><span>项官方题型</span></div>
+            <div><strong>5s</strong><span>指令限时</span></div>
+            <div><strong>100</strong><span>分制判分</span></div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-label"><span>考试题量</span><small>含开灯指令</small></div>
+            <div class="seg compact" data-setting="sceneCount">
+              <button type="button" data-value="4" class="is-active">5 项</button>
+              <button type="button" data-value="6">7 项</button>
+              <button type="button" data-value="9">10 项</button>
+              <button type="button" data-value="12">13 项</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><span>每题限时</span><small>语音结束后计时</small></div>
+            <div class="seg compact" data-setting="timeLimit">
+              <button type="button" data-value="3">3 秒</button>
+              <button type="button" data-value="5" class="is-active">5 秒</button>
+              <button type="button" data-value="8">8 秒</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><span>语音播报</span><small>中文语音指令</small></div>
+            <label class="switch"><input type="checkbox" id="voiceToggle" checked /><span></span></label>
+          </div>
+          <details class="more">
+            <summary>更多设置</summary>
+            <div class="more-body">
+              <div class="setting-row">
+                <div class="setting-label"><span>操作音效</span><small>按键与判定提示音</small></div>
+                <label class="switch"><input type="checkbox" id="soundToggle" checked /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>严格模式</span><small>考试中不公布单题结果</small></div>
+                <label class="switch"><input type="checkbox" id="strictToggle" /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>教练提示</span><small>指令下方显示正确操作</small></div>
+                <label class="switch"><input type="checkbox" id="hintToggle" /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>语音角色</span><small>系统中文语音</small></div>
+                <select id="voiceSelect" class="voice-select" aria-label="选择语音角色"></select>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="flow-card">
+          <span>考试流程</span>
+          <div class="flow-line">
+            <div><b>01</b>听语音指令</div>
+            <i></i>
+            <div><b>02</b>限时操作</div>
+            <i></i>
+            <div><b>03</b>自动判分</div>
+          </div>
+        </div>
+
+        <div class="home-actions">
+          <button class="primary" id="startBtn" type="button"><span>开始考试</span><kbd>Enter</kbd></button>
+          <button class="ghost" id="bankBtn2" type="button"><svg><use href="#i-book"/></svg>题库速查 · 13 项</button>
+        </div>
+        <p class="home-foot"><svg><use href="#i-clock"/></svg>语音播报结束后开始倒计时，超时即判错</p>
+      </section>
+
+      <section class="panel exam-panel" id="examPanel" hidden>
+        <div class="panel-head">
+          <div>
+            <span class="panel-kicker">灯光操作台</span>
+            <h3>按指令操作灯光</h3>
+          </div>
+          <span class="phase-chip" id="phaseChip">准备中</span>
+        </div>
+
+        <div class="control-group knob-group">
+          <div class="group-head"><span>灯光总开关</span><span class="keys"><kbd>0</kbd><kbd>1</kbd><kbd>2</kbd></span></div>
+          <div class="knob-wrap">
+            <div class="knob-ticks" id="knobTicks" aria-hidden="true"></div>
+            <button class="knob" id="knob" type="button" aria-label="旋转灯光总开关，当前为关闭" title="点击依次切换：关闭 → 示宽灯 → 前照灯">
+              <span class="knob-face" id="knobFace">
+                <span class="knob-pointer"></span>
+                <span class="knob-hub"></span>
+              </span>
+            </button>
+            <div class="knob-labels" role="group" aria-label="灯光总开关档位">
+              <button type="button" data-main="0" class="klabel is-active">关闭</button>
+              <button type="button" data-main="1" class="klabel">示宽灯</button>
+              <button type="button" data-main="2" class="klabel">前照灯</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-head"><span>远近光</span><span class="keys"><kbd>Q</kbd><kbd>W</kbd><kbd>空格</kbd></span></div>
+          <div class="seg beam-seg" role="group" aria-label="远近光">
+            <button type="button" class="seg-btn" data-beam="low" id="lowBtn">近光灯</button>
+            <button type="button" class="seg-btn" data-beam="high" id="highBtn">远光灯</button>
+          </div>
+          <button class="flash-btn" id="flashBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h11M11 7l5 5-5 5M19 6v12"/></svg>
+            拉动拨杆 · 交替远近光
+            <kbd>Space</kbd>
+          </button>
+        </div>
+
+        <div class="control-group aux-group">
+          <button class="aux-btn" id="fogBtn" type="button" aria-pressed="false">
+            <span class="aux-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M13 9h7M13 13h7M13 17h7"/><path d="M2 19c1.5-1.2 3-1.2 4.5 0" opacity=".6"/></svg></span>
+            <span class="aux-main"><strong>雾灯</strong><small>需先开小灯</small></span>
+            <kbd>F</kbd>
+          </button>
+          <button class="aux-btn danger" id="hazardBtn" type="button" aria-pressed="false">
+            <span class="aux-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 22 20H2z"/><path d="M12 9.5v4.8M12 17.2v.1"/></svg></span>
+            <span class="aux-main"><strong>双闪</strong><small>危险报警闪光灯</small></span>
+            <kbd>H</kbd>
+          </button>
+        </div>
+
+        <div class="console-tip" id="consoleTip"><i></i><span>提示：远近光交替请连拉两次拨杆</span></div>
+
+        <div class="exam-meta">
+          <div><span>本次考试</span><strong id="examMetaCount">5 项</strong></div>
+          <div><span>每题限时</span><strong id="examMetaTime">5 秒</strong></div>
+          <div><span>判分规则</span><strong>全对合格</strong></div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="foot-left"><span class="live-dot"></span><span id="footStatus">按真实考试流程判分 · 灯光操作错误即不合格</span></div>
+    <div class="foot-keys">
+      <span><kbd>0</kbd><kbd>1</kbd><kbd>2</kbd> 总开关</span>
+      <span><kbd>Q</kbd><kbd>W</kbd> 近/远光</span>
+      <span><kbd>Space</kbd> 交替</span>
+      <span><kbd>F</kbd> 雾灯</span>
+      <span><kbd>H</kbd> 双闪</span>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="resultOverlay" hidden>
+  <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <button class="modal-close" id="resultClose" type="button" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+    <div class="result-top">
+      <div class="score-ring" id="scoreRing">
+        <div class="score-inner"><strong id="scoreNum">100</strong><span>分</span></div>
+      </div>
+      <div class="result-copy">
+        <span class="verdict" id="verdict">合格</span>
+        <h2 id="resultTitle">灯光考试通过</h2>
+        <p id="resultSub">全部 5 项操作正确，可以上车考试了。</p>
+      </div>
+    </div>
+    <div class="result-stats">
+      <div><span>正确题数</span><strong id="statCorrect">5 / 5</strong></div>
+      <div><span>平均反应</span><strong id="statTime">2.1 s</strong></div>
+      <div><span>考试用时</span><strong id="statTotal">0:42</strong></div>
+    </div>
+    <div class="review-head"><span>答题回顾</span><small>错误项会在下方给出正确操作</small></div>
+    <div class="review" id="reviewList"></div>
+    <div class="result-actions">
+      <button class="primary" id="againBtn" type="button"><svg><use href="#i-refresh"/></svg>再考一次</button>
+      <button class="ghost" id="wrongBtn" type="button">只练错题</button>
+      <button class="ghost" id="homeBtn" type="button">返回首页</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="bankOverlay" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bankTitle">
+    <header class="modal-head">
+      <div>
+        <span class="panel-kicker">灯光题库</span>
+        <h2 id="bankTitle">13 项夜间灯光场景</h2>
+      </div>
+      <button class="modal-close" id="bankClose" type="button" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="bank" role="tab" aria-selected="true">题库速查</button>
+      <button class="tab" data-tab="rules" role="tab" aria-selected="false">考试规则</button>
+    </div>
+    <div class="modal-body" id="bankPane">
+      <p class="pane-lead">点击喇叭可试听语音。真实考试从下列场景中随机抽取，全部操作正确才算合格。</p>
+      <div class="bank-list" id="bankList"></div>
+    </div>
+    <div class="modal-body" id="rulesPane" hidden>
+      <div class="rule-grid">
+        <section>
+          <h4>考试流程</h4>
+          <ol>
+            <li>语音播报场景指令，播报结束后开始计时。</li>
+            <li>在限定时间内完成对应的灯光操作。</li>
+            <li>系统自动判定，全部正确才算合格。</li>
+          </ol>
+        </section>
+        <section>
+          <h4>操作要点</h4>
+          <ul>
+            <li><b>总开关</b>：关闭 → 示宽灯 → 前照灯，三档循环。</li>
+            <li><b>远近光</b>：向前推为远光，回位为近光。</li>
+            <li><b>交替</b>：拉动拨杆两次，最终回到近光。</li>
+            <li><b>雾灯</b>：需先开启示宽灯或前照灯。</li>
+            <li><b>双闪</b>：独立开关，任何时候都可开启。</li>
+          </ul>
+        </section>
+        <section>
+          <h4>常见易错</h4>
+          <ul>
+            <li>跟车、会车误开远光。</li>
+            <li>交替只拉一次，次数不足。</li>
+            <li>雾天只开雾灯，忘开双闪。</li>
+            <li>临时停车仍开着前照灯，未切示宽灯。</li>
+          </ul>
+        </section>
+        <section>
+          <h4>说明</h4>
+          <p>各地车管所考试规则、语音措辞可能略有差异，本程序按通用小型汽车（C1/C2）夜间灯光考试规则设计，仅用于练习。</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay mini" id="confirmOverlay" hidden>
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h3 id="confirmTitle">退出本次考试？</h3>
+    <p>当前成绩将不会保存，返回首页后可以重新开始。</p>
+    <div class="confirm-actions">
+      <button class="ghost" id="confirmCancel" type="button">继续考试</button>
+      <button class="danger-btn" id="confirmExit" type="button">退出</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

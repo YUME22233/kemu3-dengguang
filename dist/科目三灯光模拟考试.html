@@ -1,0 +1,3914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>科目三 · 夜间灯光模拟考试</title>
+<style>
+/* ==========================================================================
+   科目三 · 夜间灯光模拟考试
+   ========================================================================== */
+
+:root {
+  --bg: #04070d;
+  --bg-soft: #070d18;
+  --panel: rgba(12, 20, 33, 0.88);
+  --panel-2: rgba(18, 29, 46, 0.72);
+  --line: rgba(120, 165, 225, 0.14);
+  --line-strong: rgba(120, 190, 255, 0.32);
+  --text: #eaf2ff;
+  --muted: #93a8c6;
+  --dim: #5d7192;
+  --cyan: #45d6ff;
+  --cyan-soft: #9beaff;
+  --green: #3ee6a4;
+  --amber: #ffb648;
+  --red: #ff5d6c;
+  --blue: #6db4ff;
+  --radius: 22px;
+  --shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
+  --font: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "HarmonyOS Sans SC",
+    "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", ui-monospace, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(1100px 620px at 82% -12%, rgba(54, 122, 255, 0.18), transparent 62%),
+    radial-gradient(900px 540px at -8% 108%, rgba(0, 214, 255, 0.11), transparent 62%),
+    radial-gradient(700px 420px at 50% 120%, rgba(120, 70, 255, 0.06), transparent 70%),
+    linear-gradient(180deg, #04070d 0%, #050910 55%, #03060b 100%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+}
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+svg { display: block; }
+
+button { font-family: inherit; }
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid rgba(69, 214, 255, 0.75);
+  outline-offset: 2px;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  border: 1px solid rgba(190, 215, 245, 0.16);
+  border-bottom-color: rgba(190, 215, 245, 0.28);
+  background: rgba(255, 255, 255, 0.055);
+  color: #a9bdd8;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+/* ============================ 布局 ============================ */
+
+.app {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 clamp(14px, 2vw, 30px);
+}
+
+.topbar {
+  flex: 0 0 auto;
+  height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--cyan);
+  background: linear-gradient(150deg, rgba(29, 74, 112, 0.9), rgba(8, 18, 30, 0.95));
+  border: 1px solid rgba(90, 200, 255, 0.28);
+  box-shadow: 0 0 26px rgba(65, 216, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.brand-mark svg { width: 24px; height: 24px; }
+
+.brand-text { min-width: 0; }
+.brand-text strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-full { display: inline; }
+.brand-short { display: none; }
+.brand-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.top-actions { display: flex; align-items: center; gap: 8px; }
+
+.voice-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  margin-right: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.voice-pill:hover { border-color: var(--line-strong); color: #cfe3ff; }
+.voice-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dim);
+  box-shadow: 0 0 0 3px rgba(93, 113, 146, 0.12);
+}
+.voice-pill.is-ready .voice-dot {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green), 0 0 0 3px rgba(62, 230, 164, 0.12);
+}
+.voice-pill.is-missing .voice-dot { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+
+.icon-btn {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn:hover {
+  color: #dcecff;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--line);
+}
+.icon-btn.is-off { color: #4c5c72; }
+
+.exit-btn {
+  height: 34px;
+  padding: 0 14px;
+  margin-left: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 93, 108, 0.35);
+  background: rgba(255, 93, 108, 0.08);
+  color: #ff9aa4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.exit-btn:hover { background: rgba(255, 93, 108, 0.16); }
+
+.workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(380px, 31vw, 458px);
+  gap: clamp(14px, 1.5vw, 22px);
+  padding-bottom: 12px;
+}
+
+.stage-shell { position: relative; min-width: 0; min-height: 0; }
+
+.stage {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #03060b;
+  border: 1px solid rgba(112, 165, 232, 0.17);
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+  isolation: isolate;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: filter 0.3s;
+}
+
+/* ============================ 场景灯光 ============================ */
+
+.lamp { opacity: 0.08; transition: opacity 0.16s ease, filter 0.16s ease; }
+.lamp-head-glow { opacity: 0.04; }
+.lamp-tail-glow { opacity: 0.04; }
+
+#scene[data-main="1"] .lamp-tail,
+#scene[data-main="2"] .lamp-tail {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(255, 49, 69, 0.9));
+}
+#scene[data-main="1"] .lamp-tail-glow,
+#scene[data-main="2"] .lamp-tail-glow { opacity: 0.55; }
+
+#scene[data-main="1"] .lamp-marker,
+#scene[data-main="2"] .lamp-marker { opacity: 1; }
+
+#scene[data-main="2"] .lamp-head {
+  opacity: 1;
+  filter: drop-shadow(0 0 11px rgba(208, 240, 255, 0.95));
+}
+#scene[data-main="2"] .lamp-head-glow { opacity: 0.85; }
+
+#scene[data-fog="1"] .lamp-fog {
+  opacity: 1;
+  filter: drop-shadow(0 0 9px rgba(255, 194, 71, 0.95));
+}
+
+.beam,
+.beam-pool { opacity: 0; transition: opacity 0.18s ease; }
+.beam-shaft { opacity: 0; transition: opacity 0.18s ease; }
+#scene[data-main="2"][data-beam="low"] .shaft-low,
+#scene[data-main="2"][data-beam="high"] .shaft-high { opacity: 1; }
+
+#scene[data-main="2"][data-beam="low"] .beam-low,
+#scene[data-main="2"][data-beam="low"] .pool-low,
+#scene[data-main="2"][data-beam="low"] .pool-near { opacity: 1; }
+
+#scene[data-main="2"][data-beam="high"] .beam-high,
+#scene[data-main="2"][data-beam="high"] .beam-high-core,
+#scene[data-main="2"][data-beam="high"] .pool-near,
+#scene[data-main="2"][data-beam="high"] .pool-mid,
+#scene[data-main="2"][data-beam="high"] .pool-high,
+#scene[data-main="2"][data-beam="high"] .pool-far { opacity: 1; }
+
+#scene[data-fog="1"] .beam-fog { opacity: 0.9; }
+#scene[data-fog="1"] .pool-fog { opacity: 0.8; }
+
+#scene.is-flashing[data-main="2"] .beam-high,
+#scene.is-flashing[data-main="2"] .beam-high-core,
+#scene.is-flashing[data-main="2"] .pool-near,
+#scene.is-flashing[data-main="2"] .pool-mid,
+#scene.is-flashing[data-main="2"] .pool-high,
+#scene.is-flashing[data-main="2"] .pool-far { opacity: 1; }
+#scene.is-flashing[data-main="2"] .beam-low,
+#scene.is-flashing[data-main="2"] .pool-low { opacity: 0.1; }
+
+#scene[data-hazard="1"] .lamp-turn {
+  opacity: 1;
+  animation: hazardBlink 0.9s steps(1, end) infinite;
+}
+.hazard-glow { opacity: 0; transition: opacity 0.2s; }
+#scene[data-hazard="1"] .hazard-glow {
+  opacity: 1;
+  animation: hazardBlink 0.9s steps(1, end) infinite;
+}
+
+.fog-layer { opacity: 0; transition: opacity 0.6s ease; }
+#scene[data-fog="1"] .fog-layer { opacity: 1; }
+#scene[data-fog="1"] .fog-layer > ellipse:nth-of-type(1) {
+  animation: fogDrift 16s ease-in-out infinite alternate;
+}
+#scene[data-fog="1"] .fog-layer > ellipse:nth-of-type(2) {
+  animation: fogDrift 22s ease-in-out infinite alternate-reverse;
+}
+
+#scene .car-decal { font-family: var(--font); }
+
+#stars circle { animation: twinkle 4.5s ease-in-out infinite; }
+
+@keyframes hazardBlink {
+  0%, 44% { opacity: 1; }
+  45%, 100% { opacity: 0.06; }
+}
+@keyframes fogDrift {
+  from { transform: translateX(-26px); }
+  to { transform: translateX(30px); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.28; }
+  50% { opacity: 0.85; }
+}
+
+/* ============================ 舞台 HUD ============================ */
+
+.stage-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(5, 11, 20, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  color: #b7cae2;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.stage-badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 9px var(--cyan);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+body[data-view="exam"] .stage-badge { display: none; }
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 2.4vh, 28px) clamp(20px, 2.6vw, 32px);
+  pointer-events: none;
+}
+.hud::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgba(2, 5, 10, 0.72), rgba(2, 5, 10, 0.18) 55%, transparent);
+  z-index: -1;
+  pointer-events: none;
+}
+.hud button { pointer-events: auto; }
+
+.hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 0 0 auto;
+}
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: #a9bfdc;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+.dots { display: flex; gap: 6px; }
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: 0.25s;
+}
+.dot.is-done { background: var(--green); box-shadow: 0 0 10px rgba(62, 230, 164, 0.7); }
+.dot.is-bad { background: var(--red); box-shadow: 0 0 10px rgba(255, 93, 108, 0.7); }
+.dot.is-now {
+  background: var(--cyan);
+  box-shadow: 0 0 14px rgba(69, 214, 255, 0.9);
+  transform: scale(1.25);
+}
+
+.skip-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(9, 18, 30, 0.58);
+  color: #c4d7ee;
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: 0.18s;
+}
+.skip-btn:hover { border-color: var(--line-strong); color: #fff; }
+
+.hud-main {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(18px, 2.4vw, 34px);
+  padding-top: clamp(18px, 4.6vh, 44px);
+}
+
+.instruction {
+  max-width: 600px;
+  text-align: center;
+  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.9);
+  animation: instrIn 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.instr-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: #87a3c4;
+  text-transform: uppercase;
+}
+.instr-kicker i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+.instr-kicker.is-speaking i { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+.instruction h2 {
+  margin: 0;
+  font-size: clamp(23px, 2.5vw, 35px);
+  line-height: 1.32;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: #f3f9ff;
+}
+.instruction p {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: #9db4d2;
+}
+.instruction p b { color: var(--cyan); font-weight: 700; }
+.instruction p.hint { color: #ffd28a; }
+
+.timer {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex: 0 0 auto;
+  margin-top: 4px;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+}
+.timer svg { width: 104px; height: 104px; transform: rotate(-90deg); }
+.t-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 5; }
+.t-fg {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 257.6;
+  stroke-dashoffset: 0;
+  transition: stroke 0.25s, stroke-dashoffset 0.08s linear;
+  filter: drop-shadow(0 0 6px rgba(69, 214, 255, 0.7));
+}
+.timer.is-urgent .t-fg { stroke: var(--red); filter: drop-shadow(0 0 8px rgba(255, 93, 108, 0.8)); }
+.timer-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+.timer-num strong {
+  font-family: var(--mono);
+  font-size: 23px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.timer-num span { font-size: 9px; color: var(--muted); letter-spacing: 0.2em; }
+
+.speaking-bars { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; gap: 4px; }
+.speaking-bars i {
+  width: 3px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--cyan);
+  animation: barWave 0.9s ease-in-out infinite;
+}
+.speaking-bars i:nth-child(2) { animation-delay: 0.12s; }
+.speaking-bars i:nth-child(3) { animation-delay: 0.24s; }
+.speaking-bars i:nth-child(4) { animation-delay: 0.36s; }
+.timer.is-speaking .timer-num { display: none; }
+.timer.is-speaking .speaking-bars { display: flex; }
+.timer.is-speaking .t-fg { stroke-dashoffset: 0; opacity: 0.5; }
+
+@keyframes barWave {
+  0%, 100% { height: 6px; opacity: 0.5; }
+  50% { height: 20px; opacity: 1; }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+@keyframes instrIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 状态灯条 */
+.telltales {
+  position: absolute;
+  left: clamp(14px, 1.6vw, 22px);
+  bottom: clamp(14px, 1.6vw, 20px);
+  z-index: 6;
+  display: flex;
+  gap: 2px;
+  padding: 8px 9px;
+  border-radius: 15px;
+  background: rgba(4, 9, 16, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
+}
+.telltale {
+  width: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #3f4f64;
+  transition: color 0.2s, filter 0.2s;
+}
+.telltale svg { width: 21px; height: 21px; }
+.telltale span { font-size: 8.5px; letter-spacing: 0.08em; }
+.telltale[data-t="position"].is-on,
+.telltale[data-t="low"].is-on { color: var(--green); }
+.telltale[data-t="high"].is-on { color: var(--blue); }
+.telltale[data-t="fog"].is-on { color: var(--amber); }
+.telltale[data-t="hazard"].is-on { color: var(--red); }
+.telltale.is-on svg { filter: drop-shadow(0 0 6px currentColor); }
+.telltale.is-on span { color: #d9e8fb; }
+
+.state-caption {
+  position: absolute;
+  right: clamp(14px, 1.6vw, 22px);
+  bottom: clamp(14px, 1.6vw, 20px);
+  z-index: 6;
+  padding: 9px 13px;
+  border-radius: 11px;
+  background: rgba(4, 9, 16, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  font-size: 11px;
+  color: #8ea6c4;
+  letter-spacing: 0.04em;
+}
+.state-caption b { color: #dcecff; font-weight: 600; }
+.state-caption b.is-on { color: var(--cyan); }
+
+.feedback {
+  position: absolute;
+  left: 50%;
+  top: 63%;
+  z-index: 8;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 20px 13px 14px;
+  border-radius: 18px;
+  background: rgba(6, 13, 23, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.22s, transform 0.28s cubic-bezier(0.2, 1.2, 0.4, 1);
+  max-width: min(88%, 560px);
+}
+.feedback.is-show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.fb-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(62, 230, 164, 0.12);
+  color: var(--green);
+}
+.fb-icon svg { width: 22px; height: 22px; }
+.fb-text { display: flex; flex-direction: column; gap: 3px; }
+.fb-text strong { font-size: 15px; letter-spacing: 0.04em; }
+.fb-text span { font-size: 12px; color: #a8bdd8; line-height: 1.4; }
+.feedback[data-kind="ok"] { border-color: rgba(62, 230, 164, 0.4); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 50px rgba(62, 230, 164, 0.12); }
+.feedback[data-kind="bad"] { border-color: rgba(255, 93, 108, 0.45); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 50px rgba(255, 93, 108, 0.14); }
+.feedback[data-kind="bad"] .fb-icon { background: rgba(255, 93, 108, 0.14); color: var(--red); }
+.feedback[data-kind="neutral"] .fb-icon { background: rgba(109, 180, 255, 0.12); color: var(--blue); }
+
+/* ============================ 右侧面板 ============================ */
+
+.side { min-width: 0; min-height: 0; display: flex; }
+
+.panel {
+  width: 100%;
+  min-height: 0;
+  padding: clamp(18px, 2.2vh, 24px);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(158deg, rgba(22, 36, 57, 0.93), rgba(8, 14, 24, 0.96) 58%, rgba(6, 11, 19, 0.98));
+  border: 1px solid rgba(118, 165, 230, 0.16);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 140, 190, 0.3) transparent;
+}
+.panel::-webkit-scrollbar { width: 6px; }
+.panel::-webkit-scrollbar-thumb { background: rgba(100, 140, 190, 0.28); border-radius: 99px; }
+
+.panel-kicker {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+/* ---------- 首页 ---------- */
+
+.home-panel { display: flex; flex-direction: column; gap: 16px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(69, 214, 255, 0.09);
+  border: 1px solid rgba(69, 214, 255, 0.24);
+  color: #91e4ff;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+
+.home-hero h1 {
+  margin: 13px 0 10px;
+  font-size: clamp(30px, 2.7vw, 41px);
+  line-height: 1.07;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+.home-hero h1 em {
+  font-style: normal;
+  background: linear-gradient(100deg, #8beeff, #45c8ff 55%, #4e8dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 30px rgba(69, 200, 255, 0.25));
+}
+.home-hero p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #91a7c4;
+  max-width: 36em;
+}
+.home-hero p b { color: var(--cyan); font-weight: 700; }
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 15px;
+}
+.hero-stats div {
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+.hero-stats strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #dff3ff;
+}
+.hero-stats span { display: block; margin-top: 2px; font-size: 9.5px; color: var(--dim); letter-spacing: 0.08em; }
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(5, 10, 18, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+}
+.setting-label { min-width: 88px; }
+.setting-label span { display: block; font-size: 12px; color: #d3e2f4; }
+.setting-label small { display: block; margin-top: 2px; font-size: 9.5px; color: var(--dim); letter-spacing: 0.03em; }
+
+.seg {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(3, 7, 13, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.seg.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); width: min(240px, 62%); }
+.seg.compact[data-setting="timeLimit"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg button {
+  height: 30px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #7288a6;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.18s;
+}
+.seg button:hover { color: #cfe4ff; background: rgba(255, 255, 255, 0.05); }
+.seg button.is-active {
+  color: #eafaff;
+  background: linear-gradient(180deg, rgba(69, 214, 255, 0.26), rgba(69, 214, 255, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(69, 214, 255, 0.42), 0 4px 14px rgba(69, 214, 255, 0.1);
+}
+
+.switch { position: relative; display: inline-flex; cursor: pointer; flex: 0 0 auto; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch span {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #1a2536;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: 0.22s;
+}
+.switch span::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8497b1;
+  transition: 0.22s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.switch input:checked + span {
+  background: rgba(69, 214, 255, 0.18);
+  border-color: rgba(69, 214, 255, 0.4);
+  box-shadow: inset 0 0 10px rgba(69, 214, 255, 0.12);
+}
+.switch input:checked + span::after {
+  transform: translateX(18px);
+  background: var(--cyan);
+  box-shadow: 0 0 12px rgba(69, 214, 255, 0.8);
+}
+
+.more { border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 10px; }
+.more summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #8ba2c0;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  line-height: 1;
+}
+.more[open] summary::before { content: "−"; }
+.more-body { display: flex; flex-direction: column; gap: 11px; padding-top: 13px; }
+.voice-select {
+  width: min(180px, 56%);
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a1421;
+  color: #cfe2f8;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.flow-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.022);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.flow-card > span { display: block; font-size: 9.5px; letter-spacing: 0.18em; color: var(--dim); }
+.flow-line { display: flex; align-items: center; gap: 9px; margin-top: 9px; }
+.flow-line div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: #a9bdd8;
+  white-space: nowrap;
+}
+.flow-line b {
+  padding: 2px 4px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(69, 214, 255, 0.08);
+  border: 1px solid rgba(69, 214, 255, 0.18);
+}
+.flow-line i {
+  flex: 1;
+  height: 1px;
+  min-width: 6px;
+  background: linear-gradient(90deg, rgba(69, 214, 255, 0.28), rgba(69, 214, 255, 0.02));
+}
+
+.home-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 2px; }
+
+.primary {
+  position: relative;
+  height: 54px;
+  border-radius: 15px;
+  border: 1px solid rgba(150, 240, 255, 0.5);
+  background: linear-gradient(135deg, #63e4ff 0%, #31b5ff 52%, #3b7dff 100%);
+  color: #031018;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  overflow: hidden;
+  box-shadow: 0 12px 34px rgba(49, 170, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.16s, box-shadow 0.2s, filter 0.2s;
+}
+.primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.5s ease;
+}
+.primary:hover { transform: translateY(-1px); box-shadow: 0 16px 40px rgba(49, 170, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+.primary:hover::after { left: 120%; }
+.primary:active { transform: translateY(0) scale(0.995); }
+.primary kbd {
+  background: rgba(2, 16, 26, 0.16);
+  border-color: rgba(2, 16, 26, 0.18);
+  color: rgba(2, 20, 32, 0.72);
+}
+.primary svg { width: 18px; height: 18px; }
+
+.ghost {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.025);
+  color: #b8cbe3;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: 0.18s;
+}
+.ghost svg { width: 16px; height: 16px; }
+.ghost:hover { background: rgba(255, 255, 255, 0.055); border-color: rgba(255, 255, 255, 0.18); color: #e7f3ff; }
+
+.home-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 10px;
+  color: #5f7593;
+  letter-spacing: 0.03em;
+}
+.home-foot svg { width: 12px; height: 12px; }
+
+/* ---------- 考试面板 ---------- */
+
+.exam-panel { display: flex; flex-direction: column; }
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+.panel-head h3 { margin: 6px 0 0; font-size: 15px; font-weight: 700; letter-spacing: 0.03em; }
+.phase-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(109, 180, 255, 0.08);
+  border: 1px solid rgba(109, 180, 255, 0.2);
+  color: #9fc6ef;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.phase-chip.is-live { color: var(--cyan-soft); border-color: rgba(69, 214, 255, 0.35); background: rgba(69, 214, 255, 0.1); }
+.phase-chip.is-bad { color: #ff9da7; border-color: rgba(255, 93, 108, 0.35); background: rgba(255, 93, 108, 0.1); }
+
+.control-group { border-top: 1px solid rgba(255, 255, 255, 0.065); margin-top: 12px; padding-top: 12px; }
+.control-group:first-of-type { border-top: 0; margin-top: 8px; padding-top: 0; }
+
+.group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #8ea5c3;
+  letter-spacing: 0.06em;
+}
+.keys { display: flex; gap: 3px; }
+
+.knob-group { text-align: center; }
+.knob-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.knob-ticks { position: absolute; top: 77px; left: 50%; width: 0; height: 0; pointer-events: none; }
+.knob-ticks span {
+  position: absolute;
+  left: -1px;
+  top: -4px;
+  width: 2px;
+  height: 7px;
+  border-radius: 2px;
+  background: rgba(190, 215, 245, 0.16);
+  transform-origin: 1px 4px;
+}
+.knob-ticks span.is-major { height: 10px; background: rgba(120, 200, 255, 0.4); }
+
+.knob {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.knob::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(69, 214, 255, 0.1), transparent 58%),
+    conic-gradient(from 215deg, rgba(255, 255, 255, 0.03), rgba(120, 190, 255, 0.14) 20%, rgba(255, 255, 255, 0.03) 40%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid rgba(128, 172, 230, 0.16);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+  transition: box-shadow 0.3s;
+}
+.knob:hover::before { box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55), 0 0 26px rgba(69, 214, 255, 0.12); }
+.knob.is-on::before { box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.5), 0 0 34px rgba(69, 214, 255, 0.2); }
+
+.knob-face {
+  position: absolute;
+  inset: 15px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 27%, #354961 0%, #1a2637 42%, #0d1521 72%, #070c14 100%);
+  border: 1px solid rgba(146, 188, 236, 0.22);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.12),
+    inset 0 -14px 26px rgba(0, 0, 0, 0.62),
+    0 16px 30px rgba(0, 0, 0, 0.45);
+  transform: rotate(var(--angle, -62deg));
+  transition: transform 0.4s cubic-bezier(0.25, 0.9, 0.3, 1.22);
+}
+.knob-pointer {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  width: 5px;
+  height: 33px;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #d8fbff, #45d6ff 60%, rgba(69, 214, 255, 0.15));
+  box-shadow: 0 0 12px rgba(69, 214, 255, 0.85);
+}
+.knob-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 38% 32%, #2e4259, #121c29 62%, #080e17);
+  border: 1px solid rgba(140, 185, 235, 0.2);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.14), 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.knob-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; margin-top: 9px; }
+.klabel {
+  height: 29px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #60748f;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.klabel:hover { color: #cfe6ff; background: rgba(255, 255, 255, 0.04); }
+.klabel.is-active {
+  color: #bdf1ff;
+  background: rgba(69, 214, 255, 0.1);
+  border-color: rgba(69, 214, 255, 0.3);
+  text-shadow: 0 0 14px rgba(69, 214, 255, 0.6);
+}
+
+.beam-seg { grid-template-columns: 1fr 1fr; margin-bottom: 9px; }
+.beam-seg .seg-btn {
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.025);
+  color: #8fa5c2;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.beam-seg .seg-btn:hover { color: #e0f2ff; background: rgba(255, 255, 255, 0.05); }
+.beam-seg .seg-btn.is-active {
+  color: #041018;
+  background: linear-gradient(180deg, #a7eeff, #47d3ff 60%, #2fb2f0);
+  box-shadow: 0 0 24px rgba(69, 214, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.beam-seg .seg-btn[aria-disabled="true"] { opacity: 0.38; cursor: not-allowed; }
+.beam-seg .seg-btn[aria-disabled="true"]:hover { background: rgba(255, 255, 255, 0.025); color: #8fa5c2; }
+
+.flash-btn {
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 11px;
+  border: 1px dashed rgba(69, 214, 255, 0.32);
+  background: rgba(69, 214, 255, 0.045);
+  color: #bfeaff;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.flash-btn svg { width: 16px; height: 16px; }
+.flash-btn:hover { background: rgba(69, 214, 255, 0.1); border-color: rgba(69, 214, 255, 0.55); }
+.flash-btn:active { transform: scale(0.988); background: rgba(69, 214, 255, 0.18); }
+.flash-btn[aria-disabled="true"] { opacity: 0.38; cursor: not-allowed; }
+
+.aux-group { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.aux-btn {
+  position: relative;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  background: rgba(255, 255, 255, 0.025);
+  color: #97abc7;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.aux-btn .aux-ico {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #b9cde6;
+  transition: 0.18s;
+}
+.aux-btn .aux-ico svg { width: 19px; height: 19px; }
+.aux-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.aux-main strong { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; color: #d3e3f5; }
+.aux-main small { font-size: 8.5px; color: #5f7593; letter-spacing: 0.02em; white-space: nowrap; }
+.aux-btn kbd { margin-left: auto; }
+.aux-btn:hover { border-color: rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.05); }
+.aux-btn.is-on {
+  border-color: rgba(255, 182, 72, 0.55);
+  background: linear-gradient(180deg, rgba(255, 182, 72, 0.16), rgba(255, 182, 72, 0.05));
+  box-shadow: 0 0 26px rgba(255, 182, 72, 0.14);
+  color: #ffd99a;
+}
+.aux-btn.is-on .aux-ico { background: rgba(255, 182, 72, 0.16); color: var(--amber); box-shadow: 0 0 18px rgba(255, 182, 72, 0.25); }
+.aux-btn.is-on .aux-main strong { color: #ffe6b8; }
+.aux-btn.is-on .aux-main small { color: #b9945a; }
+.aux-btn[aria-disabled="true"] { opacity: 0.38; cursor: not-allowed; }
+
+.aux-btn.danger.is-on {
+  border-color: rgba(255, 93, 108, 0.55);
+  background: linear-gradient(180deg, rgba(255, 93, 108, 0.16), rgba(255, 93, 108, 0.05));
+  box-shadow: 0 0 26px rgba(255, 93, 108, 0.14);
+  color: #ffc0c6;
+}
+.aux-btn.danger.is-on .aux-ico { background: rgba(255, 93, 108, 0.16); color: var(--red); box-shadow: 0 0 18px rgba(255, 93, 108, 0.22); }
+.aux-btn.danger.is-on .aux-main strong { color: #ffd6da; }
+.aux-btn.danger.is-on .aux-main small { color: #b57a82; }
+
+.aux-btn.is-on.danger .aux-ico svg { animation: hazardIcon 0.9s steps(1, end) infinite; }
+@keyframes hazardIcon {
+  0%, 44% { opacity: 1; }
+  45%, 100% { opacity: 0.35; }
+}
+
+.console-tip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  color: #5f7593;
+  letter-spacing: 0.03em;
+}
+.console-tip i {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgba(69, 214, 255, 0.55);
+}
+
+.exam-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+.exam-meta div {
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.024);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.exam-meta span { display: block; font-size: 9px; color: #5f7593; letter-spacing: 0.08em; }
+.exam-meta strong { display: block; margin-top: 3px; font-size: 11.5px; color: #cfe2f7; font-weight: 600; }
+
+/* ============================ 底部 ============================ */
+
+.footer {
+  flex: 0 0 auto;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #576b88;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+.foot-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.foot-left > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.live-dot {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(62, 230, 164, 0.8);
+}
+.foot-keys { display: flex; align-items: center; gap: 14px; }
+.foot-keys span { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.foot-keys kbd { min-width: 17px; height: 17px; font-size: 9px; border-radius: 5px; }
+
+/* ============================ 弹层 ============================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(2, 5, 10, 0.75);
+  backdrop-filter: blur(14px);
+  animation: fadeIn 0.22s ease both;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.result-card,
+.modal-card {
+  position: relative;
+  width: min(820px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background:
+    linear-gradient(160deg, rgba(23, 38, 60, 0.98), rgba(8, 14, 24, 0.99) 55%, rgba(5, 9, 16, 1));
+  border: 1px solid rgba(120, 170, 235, 0.2);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  animation: popIn 0.32s cubic-bezier(0.2, 1.1, 0.35, 1) both;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #93a9c6;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.modal-close svg { width: 16px; height: 16px; }
+.modal-close:hover { color: #fff; background: rgba(255, 255, 255, 0.09); }
+
+.result-card { padding: clamp(20px, 3vh, 30px); gap: 16px; }
+
+.result-top { display: flex; align-items: center; gap: 22px; }
+.score-ring {
+  --pct: 100;
+  --ring: var(--green);
+  position: relative;
+  width: 112px;
+  height: 112px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring) calc(var(--pct) * 1%), rgba(255, 255, 255, 0.07) 0);
+  display: grid;
+  place-items: center;
+  transition: background 0.6s;
+  box-shadow: 0 0 46px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+.score-ring::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: #08111c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.score-inner { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 2px; }
+.score-inner strong {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--ring);
+  font-variant-numeric: tabular-nums;
+}
+.score-inner span { font-size: 10px; color: #7f95b2; }
+
+.result-copy { min-width: 0; }
+.verdict {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #7dffcf;
+  background: rgba(62, 230, 164, 0.1);
+  border: 1px solid rgba(62, 230, 164, 0.3);
+}
+.verdict.is-bad { color: #ff9da7; background: rgba(255, 93, 108, 0.1); border-color: rgba(255, 93, 108, 0.32); }
+.result-copy h2 { margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 28px); letter-spacing: 0.02em; }
+.result-copy p { margin: 0; font-size: 12px; line-height: 1.6; color: #93a9c6; }
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.result-stats div { padding: 0 4px; }
+.result-stats span { display: block; font-size: 9.5px; color: #647a98; letter-spacing: 0.08em; }
+.result-stats strong { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; color: #dcecff; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+
+.review-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.review-head span { font-size: 12px; color: #b6cae4; letter-spacing: 0.06em; }
+.review-head small { font-size: 9.5px; color: #5f7593; }
+
+.review {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 140, 190, 0.3) transparent;
+}
+.review::-webkit-scrollbar { width: 6px; }
+.review::-webkit-scrollbar-thumb { background: rgba(100, 140, 190, 0.26); border-radius: 99px; }
+
+.review-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+.review-row.is-bad { background: rgba(255, 93, 108, 0.055); border-color: rgba(255, 93, 108, 0.2); }
+.rv-num {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #7f95b2;
+}
+.review-row.is-bad .rv-num { background: rgba(255, 93, 108, 0.12); color: #ff9da7; }
+.rv-main { flex: 1; min-width: 0; }
+.rv-main p { margin: 1px 0 3px; font-size: 12px; color: #d8e7f9; line-height: 1.45; }
+.rv-meta { font-size: 10px; color: #7d93b0; line-height: 1.5; }
+.rv-meta b { color: #a9c6e6; font-weight: 600; }
+.review-row.is-bad .rv-meta b { color: #ffb3ba; }
+.rv-tip { margin-top: 4px; font-size: 10px; color: #b08a58; line-height: 1.5; }
+.rv-tag {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--green);
+  background: rgba(62, 230, 164, 0.1);
+}
+.rv-tag svg { width: 13px; height: 13px; }
+.review-row.is-bad .rv-tag { color: var(--red); background: rgba(255, 93, 108, 0.12); }
+.rv-time { flex: 0 0 auto; font-family: var(--mono); font-size: 9.5px; color: #5f7593; margin-top: 4px; }
+
+.result-actions { display: flex; gap: 9px; padding-top: 4px; }
+.result-actions .primary { height: 48px; flex: 1.2; font-size: 13px; }
+.result-actions .ghost { flex: 1; height: 48px; }
+.result-actions .ghost:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* 题库 */
+.modal-card { width: min(760px, 100%); padding: 0; overflow: hidden; }
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 14px;
+}
+.modal-head h2 { margin: 7px 0 0; font-size: 21px; letter-spacing: 0.02em; }
+.tabs { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+.tab {
+  position: relative;
+  height: 38px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: #7f95b2;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.tab.is-active { color: #d8edff; }
+.tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cyan), #3b7dff);
+  box-shadow: 0 0 10px rgba(69, 214, 255, 0.6);
+}
+.modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 24px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 140, 190, 0.3) transparent;
+}
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-thumb { background: rgba(100, 140, 190, 0.28); border-radius: 99px; }
+.pane-lead { margin: 0 0 14px; font-size: 11.5px; color: #7f95b2; line-height: 1.7; }
+
+.bank-list { display: flex; flex-direction: column; gap: 7px; }
+.bank-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 13px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.024);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  transition: 0.18s;
+}
+.bank-item:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+.bi-num {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(69, 214, 255, 0.07);
+  border: 1px solid rgba(69, 214, 255, 0.14);
+  color: #7fd8f5;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.bi-body { flex: 1; min-width: 0; }
+.bi-body h4 { margin: 2px 0 4px; font-size: 13px; font-weight: 600; color: #e6f2ff; line-height: 1.45; }
+.bi-op { margin: 0; font-size: 11px; color: #8fe8bf; }
+.bi-op b { color: #7f95b2; font-weight: 400; }
+.bi-tip { margin: 5px 0 0; font-size: 10.5px; color: #8ba1bd; line-height: 1.6; }
+.bi-speak {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  background: transparent;
+  color: #8ba3c1;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.bi-speak svg { width: 15px; height: 15px; }
+.bi-speak:hover { color: var(--cyan); border-color: rgba(69, 214, 255, 0.4); background: rgba(69, 214, 255, 0.07); }
+
+.rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.rule-grid section {
+  padding: 15px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.024);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+.rule-grid h4 { margin: 0 0 9px; font-size: 12px; color: #cfe4fb; letter-spacing: 0.06em; }
+.rule-grid ol, .rule-grid ul { margin: 0; padding-left: 16px; }
+.rule-grid li, .rule-grid p { font-size: 10.5px; line-height: 1.75; color: #8ba1bd; }
+.rule-grid p { margin: 0; }
+.rule-grid b { color: #c6dcf4; font-weight: 600; }
+
+/* 确认框 */
+.overlay.mini { background: rgba(2, 5, 10, 0.7); }
+.confirm-card {
+  width: min(380px, 100%);
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #142238, #080e18);
+  border: 1px solid rgba(120, 170, 235, 0.2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+  animation: popIn 0.25s ease both;
+}
+.confirm-card h3 { margin: 0 0 8px; font-size: 16px; }
+.confirm-card p { margin: 0 0 18px; font-size: 11.5px; line-height: 1.7; color: #8ba1bd; }
+.confirm-actions { display: flex; gap: 8px; }
+.confirm-actions .ghost, .confirm-actions .danger-btn { flex: 1; height: 40px; }
+.danger-btn {
+  border-radius: 11px;
+  border: 1px solid rgba(255, 93, 108, 0.4);
+  background: rgba(255, 93, 108, 0.12);
+  color: #ffb6bd;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.danger-btn:hover { background: rgba(255, 93, 108, 0.22); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 54px;
+  z-index: 70;
+  transform: translate(-50%, 14px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 10px 16px;
+  border-radius: 11px;
+  background: rgba(9, 18, 30, 0.95);
+  border: 1px solid rgba(120, 180, 255, 0.22);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  font-size: 11.5px;
+  color: #d4e6fa;
+  transition: 0.22s;
+  white-space: nowrap;
+}
+.toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+.toast.is-warn { border-color: rgba(255, 182, 72, 0.4); color: #ffd79b; }
+
+body[data-view="exam"] .home-panel { display: none; }
+body[data-view="exam"] #bankBtn,
+body[data-view="exam"] #helpBtn,
+body[data-view="exam"] #voicePill { display: none; }
+
+/* ============================ 响应式 ============================ */
+
+@media (max-width: 1180px) {
+  .workspace { grid-template-columns: minmax(0, 1fr) 372px; }
+  .foot-keys { gap: 9px; }
+  .foot-keys span:nth-child(4), .foot-keys span:nth-child(5) { display: none; }
+}
+
+@media (max-width: 1060px) {
+  body { overflow-y: auto; }
+  .app { height: auto; min-height: 100vh; min-height: 100dvh; }
+  .workspace { display: flex; flex-direction: column; gap: 14px; padding-bottom: 14px; }
+  .stage-shell { flex: 0 0 auto; }
+  .stage { height: auto; aspect-ratio: 16 / 10; min-height: 360px; }
+  .side { flex: 0 0 auto; }
+  .panel { overflow: visible; }
+  .home-panel { max-width: 720px; margin: 0 auto; width: 100%; }
+  .exam-panel { max-width: 720px; margin: 0 auto; width: 100%; }
+  .hud-main { padding-top: 18px; }
+  .footer { height: auto; padding: 10px 2px 16px; flex-wrap: wrap; }
+  .foot-keys span:nth-child(n + 4) { display: none; }
+  .score-ring { width: 96px; height: 96px; }
+  .score-inner strong { font-size: 28px; }
+}
+
+@media (max-width: 720px) {
+  .topbar { height: 64px; }
+  .brand { flex: 1 1 auto; }
+  .top-actions { flex: 0 0 auto; }
+  .brand-sub { display: none; }
+  .brand-text strong { font-size: 14px; }
+  .brand-full { display: none; }
+  .brand-short { display: inline; }
+  #voicePill { display: none; }
+  .icon-btn span { display: none; }
+  .icon-btn { padding: 0; width: 36px; }
+  .seg.compact { width: 100%; max-width: 230px; }
+  .setting-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .setting-row .switch { align-self: flex-end; margin-top: -38px; }
+  .home-hero h1 { font-size: 30px; }
+  .stage { aspect-ratio: 1 / 1; min-height: 0; }
+  .hud-main { gap: 14px; }
+  .instruction h2 { font-size: 20px; }
+  .timer, .timer svg { width: 78px; height: 78px; }
+  .timer-num strong { font-size: 18px; }
+  .telltales { gap: 0; padding: 6px; }
+  .telltale { width: 44px; }
+  .telltale svg { width: 18px; height: 18px; }
+  .state-caption { display: none; }
+  .result-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .result-stats { grid-template-columns: repeat(3, 1fr); }
+  .result-actions { flex-wrap: wrap; }
+  .result-actions .primary { flex: 1 0 100%; }
+  .rule-grid { grid-template-columns: 1fr; }
+  .review-head small { display: none; }
+  .foot-keys { display: none; }
+}
+
+@media (max-height: 800px) and (min-width: 1061px) {
+  .topbar { height: 64px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 12px; }
+  .home-panel { gap: 12px; }
+  .home-hero h1 { font-size: 32px; margin: 10px 0 8px; }
+  .home-hero p { font-size: 11.5px; line-height: 1.6; }
+  .hero-stats { margin-top: 10px; }
+  .hero-stats div { padding: 7px 10px; }
+  .hero-stats strong { font-size: 16px; }
+  .settings-card { padding: 12px; gap: 9px; }
+  .knob { width: 132px; height: 132px; }
+  .knob-ticks span { display: none; }
+  .knob-face { inset: 13px; }
+  .knob-pointer { height: 28px; }
+  .beam-seg .seg-btn { height: 44px; }
+  .aux-btn { height: 56px; }
+  .control-group { margin-top: 9px; padding-top: 9px; }
+  .console-tip { margin-top: 8px; padding-top: 8px; }
+  .footer { height: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+</style>
+</head>
+<body data-view="home">
+
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-wheel" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M12 3.4v5.9M4.4 15.4l5.3-2.1M19.6 15.4l-5.3-2.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  </symbol>
+  <symbol id="i-help" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M9.6 9.2A2.6 2.6 0 0 1 14.8 10c0 1.7-2.8 2-2.8 3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M12 17.1v.1" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M15.5 8.6a5 5 0 0 1 0 6.8M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24">
+    <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-x" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24">
+    <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24">
+    <path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M12 7v5.4l3.4 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24">
+    <path d="M4 9.5h3L12 5v14l-5-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M15.5 8.6a5 5 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><svg><use href="#i-wheel"/></svg></div>
+      <div class="brand-text">
+        <strong><span class="brand-full">科目三 · 夜间灯光模拟</span><span class="brand-short">夜间灯光模拟</span></strong>
+        <span class="brand-sub">C1 / C2 灯光考试训练</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="voice-pill" id="voicePill" type="button" title="点击试听语音">
+        <i class="voice-dot"></i><span id="voicePillText">正在检测语音…</span>
+      </button>
+      <button class="icon-btn" id="bankBtn" type="button" title="题库速查">
+        <svg><use href="#i-book"/></svg><span>题库</span>
+      </button>
+      <button class="icon-btn" id="helpBtn" type="button" title="考试规则">
+        <svg><use href="#i-help"/></svg><span>规则</span>
+      </button>
+      <button class="icon-btn" id="soundBtn" type="button" title="音效开关" aria-pressed="true">
+        <svg><use href="#i-volume"/></svg>
+      </button>
+      <button class="icon-btn" id="fullBtn" type="button" title="全屏">
+        <svg><use href="#i-expand"/></svg>
+      </button>
+      <button class="exit-btn" id="exitBtn" type="button" hidden>退出考试</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-shell">
+      <div class="stage" id="stage">
+        <svg id="scene" class="scene" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice"
+             data-main="0" data-beam="low" data-fog="0" data-hazard="0" role="img"
+             aria-label="夜间道路上的考试车与前照灯灯光示意">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#02040a"/>
+              <stop offset=".52" stop-color="#06101e"/>
+              <stop offset="1" stop-color="#15263d"/>
+            </linearGradient>
+            <linearGradient id="roadGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1a212c"/>
+              <stop offset=".3" stop-color="#10151d"/>
+              <stop offset="1" stop-color="#070a0f"/>
+            </linearGradient>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2b3b53"/>
+              <stop offset=".38" stop-color="#172233"/>
+              <stop offset=".72" stop-color="#0d1521"/>
+              <stop offset="1" stop-color="#070b12"/>
+            </linearGradient>
+            <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1c3149"/>
+              <stop offset=".5" stop-color="#0a1626"/>
+              <stop offset="1" stop-color="#142639"/>
+            </linearGradient>
+            <linearGradient id="beamHighGrad" x1="0" y1="0" x2="1" y2=".22">
+              <stop offset="0" stop-color="#eef8ff" stop-opacity=".55"/>
+              <stop offset=".28" stop-color="#cbe8ff" stop-opacity=".28"/>
+              <stop offset=".7" stop-color="#9fd4ff" stop-opacity=".08"/>
+              <stop offset="1" stop-color="#9fd4ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="beamLowGrad" x1="0" y1="0" x2="1" y2=".55">
+              <stop offset="0" stop-color="#e9f6ff" stop-opacity=".5"/>
+              <stop offset=".35" stop-color="#c2e3ff" stop-opacity=".22"/>
+              <stop offset="1" stop-color="#9fd4ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="roadWashGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#e8f5ff" stop-opacity=".52"/>
+              <stop offset=".35" stop-color="#cfe8ff" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#cfe8ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="beamFogGrad" x1="0" y1="0" x2="1" y2=".4">
+              <stop offset="0" stop-color="#ffd88a" stop-opacity=".7"/>
+              <stop offset="1" stop-color="#ffb648" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="poolGrad" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#e4f3ff" stop-opacity=".62"/>
+              <stop offset=".48" stop-color="#b6ddff" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#a8d8ff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="fogPoolGrad" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#ffd88a" stop-opacity=".38"/>
+              <stop offset=".6" stop-color="#ffb648" stop-opacity=".1"/>
+              <stop offset="1" stop-color="#ffb648" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="moonGlow" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#cfe2ff" stop-opacity=".38"/>
+              <stop offset=".42" stop-color="#9fc4ff" stop-opacity=".12"/>
+              <stop offset="1" stop-color="#9fc4ff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="cityGlow" cx=".5" cy="1" r=".7">
+              <stop offset="0" stop-color="#4f8cff" stop-opacity=".16"/>
+              <stop offset="1" stop-color="#4f8cff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="vignette" cx=".5" cy=".48" r=".72">
+              <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".38"/>
+            </radialGradient>
+            <linearGradient id="fogGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#aebecd" stop-opacity=".05"/>
+              <stop offset=".55" stop-color="#b9c6d2" stop-opacity=".16"/>
+              <stop offset="1" stop-color="#cdd6de" stop-opacity=".24"/>
+            </linearGradient>
+            <linearGradient id="hazardGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffc247" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#ff9d1f" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="blur6" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+            <filter id="blur10" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>
+            <filter id="blur14" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+            <filter id="blur26" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+            <filter id="blur40" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+            <clipPath id="roadClip"><rect x="0" y="505" width="1000" height="135"/></clipPath>
+          </defs>
+
+          <rect width="1000" height="640" fill="url(#skyGrad)"/>
+          <g id="stars" fill="#dbe9ff"></g>
+          <g id="moon">
+            <circle cx="788" cy="92" r="96" fill="url(#moonGlow)"/>
+            <circle cx="788" cy="92" r="25" fill="#e9f1ff" opacity=".9"/>
+            <circle cx="780" cy="86" r="5" fill="#c8d8f2" opacity=".35"/>
+            <circle cx="796" cy="100" r="3.4" fill="#c8d8f2" opacity=".3"/>
+          </g>
+          <path id="hills" d="M0 512 L0 486 L78 462 L150 492 L236 468 L330 498 L430 474 L520 500 L620 472 L720 496 L812 470 L900 496 L1000 474 L1000 512 Z" fill="#050a13"/>
+          <ellipse cx="300" cy="516" rx="380" ry="72" fill="url(#cityGlow)"/>
+          <g id="city" fill="#060b15">
+            <rect x="0" y="486" width="34" height="30"/>
+            <rect x="36" y="470" width="26" height="46"/>
+            <rect x="64" y="492" width="44" height="24"/>
+            <rect x="112" y="458" width="28" height="58"/>
+            <rect x="142" y="482" width="38" height="34"/>
+            <rect x="184" y="466" width="34" height="50"/>
+            <rect x="222" y="490" width="30" height="26"/>
+            <rect x="256" y="450" width="26" height="66"/>
+            <rect x="286" y="478" width="40" height="38"/>
+            <rect x="330" y="462" width="30" height="54"/>
+            <rect x="364" y="490" width="36" height="26"/>
+            <rect x="404" y="472" width="26" height="44"/>
+            <rect x="434" y="452" width="22" height="64"/>
+            <rect x="460" y="484" width="38" height="32"/>
+            <rect x="502" y="468" width="28" height="48"/>
+            <rect x="532" y="486" width="30" height="30"/>
+          </g>
+          <g id="cityWindows" fill="#ffcf7a"></g>
+          <g id="trees" fill="#04080f">
+            <path d="M58 512 L66 468 L74 512Z"/>
+            <path d="M66 512 L78 452 L90 512Z"/>
+            <path d="M84 512 L93 476 L102 512Z"/>
+            <path d="M580 512 L590 462 L600 512Z"/>
+            <path d="M596 512 L609 440 L622 512Z"/>
+            <path d="M618 512 L628 470 L638 512Z"/>
+            <path d="M670 512 L680 456 L690 512Z"/>
+            <path d="M686 512 L698 432 L710 512Z"/>
+            <path d="M706 512 L716 466 L726 512Z"/>
+            <path d="M790 512 L800 460 L810 512Z"/>
+            <path d="M806 512 L818 438 L830 512Z"/>
+            <path d="M826 512 L836 474 L846 512Z"/>
+            <path d="M900 512 L910 452 L920 512Z"/>
+            <path d="M916 512 L928 430 L940 512Z"/>
+            <path d="M936 512 L946 462 L956 512Z"/>
+          </g>
+
+          <rect y="512" width="1000" height="128" fill="url(#roadGrad)"/>
+          <line x1="0" y1="513" x2="1000" y2="513" stroke="#31435c" stroke-opacity=".5" stroke-width="1.5"/>
+          <g id="roadLines" stroke="#d3e3f5" opacity=".26">
+            <line x1="0" y1="612" x2="1000" y2="612" stroke-width="3" stroke-dasharray="52 38"/>
+            <line x1="0" y1="566" x2="1000" y2="566" stroke-width="1.6" stroke-dasharray="22 46" opacity=".5"/>
+          </g>
+
+          <g id="beams" pointer-events="none">
+            <g class="beam beam-high" filter="url(#blur14)">
+              <polygon points="548,456 920,496 920,608 548,512" fill="url(#beamHighGrad)"/>
+            </g>
+            <g class="beam beam-high-core" filter="url(#blur6)">
+              <polygon points="548,468 900,512 900,542 548,502" fill="#f2faff" opacity=".3"/>
+            </g>
+            <g class="beam beam-low" filter="url(#blur14)">
+              <polygon points="548,466 780,534 780,614 548,518" fill="url(#beamLowGrad)"/>
+            </g>
+            <g class="beam beam-fog" filter="url(#blur14)">
+              <polygon points="548,496 742,590 742,632 548,520" fill="url(#beamFogGrad)"/>
+            </g>
+            <ellipse class="beam-pool pool-near" cx="626" cy="574" rx="112" ry="25" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-low" cx="716" cy="597" rx="152" ry="30" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-mid" cx="790" cy="592" rx="182" ry="33" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-high" cx="852" cy="580" rx="184" ry="32" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-far" cx="882" cy="546" rx="158" ry="25" fill="url(#poolGrad)"/>
+            <ellipse class="beam-pool pool-fog" cx="682" cy="612" rx="148" ry="24" fill="url(#fogPoolGrad)"/>
+          </g>
+
+          <g id="car">
+            <ellipse class="car-shadow" cx="368" cy="558" rx="214" ry="16" fill="#000" opacity=".62" filter="url(#blur14)"/>
+            <path class="car-body" d="M188 508 L188 468 Q188 450 208 444 L264 432 L314 399 Q324 391 342 391 L406 391 Q422 391 434 401 L500 439 L530 445 Q548 451 548 470 L548 508 Z" fill="url(#bodyGrad)"/>
+            <path class="car-rim" d="M208 444 L264 432 L314 399 Q324 391 342 391 L406 391 Q422 391 434 401 L500 439" fill="none" stroke="#8db7e0" stroke-opacity=".34" stroke-width="1.8" stroke-linecap="round"/>
+            <path class="car-skirt" d="M188 494 L548 494 L548 508 L188 508 Z" fill="#05080e" opacity=".85"/>
+            <g class="windows">
+              <path d="M286 430 L318 402 L356 402 L356 430 Z" fill="url(#glassGrad)" stroke="#3d5a78" stroke-opacity=".45"/>
+              <path d="M366 402 L404 402 Q414 402 421 407 L436 430 L366 430 Z" fill="url(#glassGrad)" stroke="#3d5a78" stroke-opacity=".45"/>
+              <path d="M296 426 L320 406 L348 406 L348 426 Z" fill="#7fb4dd" opacity=".07"/>
+              <path d="M376 408 L404 408 L416 424 L376 424 Z" fill="#7fb4dd" opacity=".06"/>
+            </g>
+            <path d="M361 402 L361 432" stroke="#3b4f66" stroke-opacity=".55" stroke-width="2"/>
+            <path d="M209 445 L209 500 M284 437 L284 500 M364 434 L364 500 M452 460 L452 499" stroke="#04070c" stroke-opacity=".7" stroke-width="1.6"/>
+            <path d="M340 444 L360 444" stroke="#4f6b89" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+            <path d="M278 446 L298 446" stroke="#4f6b89" stroke-width="3.4" stroke-linecap="round" opacity=".55"/>
+            <path d="M438 412 Q452 408 458 416 L448 424 L436 421 Z" fill="#101a28" stroke="#4a6a8d" stroke-opacity=".5"/>
+            <text class="car-decal" x="392" y="486" font-size="11" letter-spacing="2.5" fill="#8f7c3c" opacity=".85">教练车</text>
+
+            <g class="lights">
+              <g class="lamp lamp-tail">
+                <rect x="186" y="448" width="19" height="26" rx="6" fill="#ff3145"/>
+                <rect x="189" y="452" width="13" height="8" rx="3" fill="#ffd3d8" opacity=".8"/>
+              </g>
+              <g class="lamp lamp-turn rear-turn">
+                <rect x="184" y="478" width="15" height="10" rx="4" fill="#ffb020"/>
+              </g>
+              <g class="lamp lamp-head">
+                <rect x="528" y="450" width="19" height="18" rx="6" fill="#eaf7ff"/>
+                <rect x="531" y="453" width="14" height="7" rx="3" fill="#ffffff"/>
+              </g>
+              <g class="lamp lamp-turn front-turn">
+                <rect x="530" y="473" width="15" height="9" rx="4" fill="#ffb020"/>
+              </g>
+              <g class="lamp lamp-fog">
+                <rect x="531" y="493" width="13" height="9" rx="4" fill="#ffc247"/>
+              </g>
+              <rect class="lamp lamp-marker" x="544" y="488" width="4" height="13" rx="2" fill="#ffcf6b"/>
+              <rect class="lamp lamp-marker rear-marker" x="183" y="491" width="4" height="12" rx="2" fill="#ff5a63"/>
+              <circle class="lamp lamp-head-glow" cx="538" cy="459" r="26" fill="#dff2ff" opacity=".35" filter="url(#blur14)"/>
+              <circle class="lamp lamp-tail-glow" cx="195" cy="461" r="22" fill="#ff3145" opacity=".3" filter="url(#blur14)"/>
+            </g>
+
+            <g class="wheels">
+              <circle cx="238" cy="521" r="43" fill="#04060a"/>
+              <circle cx="238" cy="521" r="43" fill="none" stroke="#243349" stroke-width="2" opacity=".7"/>
+              <circle cx="238" cy="521" r="34" fill="#090c11"/>
+              <circle cx="238" cy="521" r="18" fill="#1b2534"/>
+              <circle cx="238" cy="521" r="7" fill="#070a10"/>
+              <path d="M238 503v36M220 521h36M225 509l26 24M251 509l-26 24" stroke="#2c3c52" stroke-width="2" opacity=".6"/>
+              <circle cx="474" cy="521" r="43" fill="#04060a"/>
+              <circle cx="474" cy="521" r="43" fill="none" stroke="#243349" stroke-width="2" opacity=".7"/>
+              <circle cx="474" cy="521" r="34" fill="#090c11"/>
+              <circle cx="474" cy="521" r="18" fill="#1b2534"/>
+              <circle cx="474" cy="521" r="7" fill="#070a10"/>
+              <path d="M474 503v36M456 521h36M461 509l26 24M487 509l-26 24" stroke="#2c3c52" stroke-width="2" opacity=".6"/>
+            </g>
+          </g>
+
+          <g id="hazardGlow" class="hazard-glow" pointer-events="none">
+            <circle cx="191" cy="465" r="34" fill="#ffb020" opacity=".5" filter="url(#blur14)"/>
+            <circle cx="540" cy="470" r="34" fill="#ffb020" opacity=".5" filter="url(#blur14)"/>
+            <ellipse cx="360" cy="600" rx="240" ry="30" fill="#ffb020" opacity=".12" filter="url(#blur26)"/>
+          </g>
+
+          <g id="fogLayer" class="fog-layer" pointer-events="none">
+            <rect width="1000" height="640" fill="url(#fogGrad)"/>
+            <ellipse cx="280" cy="560" rx="380" ry="90" fill="#c7d3dd" opacity=".2" filter="url(#blur40)"/>
+            <ellipse cx="790" cy="590" rx="420" ry="100" fill="#c7d3dd" opacity=".16" filter="url(#blur40)"/>
+            <ellipse cx="560" cy="470" rx="300" ry="70" fill="#c7d3dd" opacity=".1" filter="url(#blur40)"/>
+          </g>
+
+          <rect width="1000" height="640" fill="url(#vignette)" pointer-events="none"/>
+        </svg>
+
+        <div class="stage-badge" id="stageBadge"><i></i>夜间灯光演示</div>
+
+        <div class="hud" id="hud" hidden>
+          <div class="hud-top">
+            <div class="progress">
+              <div class="dots" id="progressDots"></div>
+              <span id="progressText">第 1 / 5 项</span>
+            </div>
+            <button class="skip-btn" id="skipBtn" type="button" hidden>跳过播报</button>
+          </div>
+          <div class="hud-main">
+            <div class="instruction">
+              <div class="instr-kicker" id="instrKicker"><i></i><span>语音指令</span></div>
+              <h2 id="instrText">请开启前照灯</h2>
+              <p id="instrSub">请按语音提示操作</p>
+            </div>
+            <div class="timer" id="timer" hidden>
+              <svg viewBox="0 0 96 96" aria-hidden="true">
+                <circle class="t-bg" cx="48" cy="48" r="41"/>
+                <circle class="t-fg" id="timerCircle" cx="48" cy="48" r="41"/>
+              </svg>
+              <div class="timer-num"><strong id="timerNum">5.0</strong><span>秒</span></div>
+              <div class="speaking-bars" id="speakingBars"><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="telltales" id="telltales" aria-label="当前灯光状态">
+          <div class="telltale" data-t="position" data-color="green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9h4l3-4h8v14H7L3 15z" opacity=".45"/><path d="M3 12h3M18 8l3-2M18 12h3M18 16l3 2"/>
+            </svg><span>示宽</span>
+          </div>
+          <div class="telltale" data-t="low" data-color="green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M14 9l7 4M14 13l7 4"/>
+            </svg><span>近光</span>
+          </div>
+          <div class="telltale" data-t="high" data-color="blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M14 12h7M14 8l7-2M14 16l7 2"/>
+            </svg><span>远光</span>
+          </div>
+          <div class="telltale" data-t="fog" data-color="amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M13 9h7M13 13h7M13 17h7"/><path d="M2 19c1.5-1.2 3-1.2 4.5 0M2 22c1.5-1.2 3-1.2 4.5 0" opacity=".6"/>
+            </svg><span>雾灯</span>
+          </div>
+          <div class="telltale" data-t="hazard" data-color="red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3.5 22 20H2z"/><path d="M12 9.5v4.8M12 17.2v.1"/>
+            </svg><span>双闪</span>
+          </div>
+        </div>
+
+        <div class="state-caption" id="stateCaption">当前灯光 <b>灯光关闭</b></div>
+
+        <div class="feedback" id="feedback" data-kind="ok" role="status" aria-live="polite">
+          <div class="fb-icon"><svg><use href="#i-check"/></svg></div>
+          <div class="fb-text"><strong>操作正确</strong><span>已开启近光灯</span></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel home-panel" id="homePanel">
+        <div class="home-hero">
+          <span class="pill">C1 / C2 · 科目三</span>
+          <h1>夜间灯光<br><em>模拟考试</em></h1>
+          <p>跟随语音指令，在 <b>5 秒</b> 内完成灯光操作。随机抽题、实时判分，还原真实夜考节奏。</p>
+          <div class="hero-stats">
+            <div><strong>13</strong><span>项官方题型</span></div>
+            <div><strong>5s</strong><span>指令限时</span></div>
+            <div><strong>100</strong><span>分制判分</span></div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-label"><span>考试题量</span><small>含开灯指令</small></div>
+            <div class="seg compact" data-setting="sceneCount">
+              <button type="button" data-value="4" class="is-active">5 项</button>
+              <button type="button" data-value="6">7 项</button>
+              <button type="button" data-value="9">10 项</button>
+              <button type="button" data-value="12">13 项</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><span>每题限时</span><small>语音结束后计时</small></div>
+            <div class="seg compact" data-setting="timeLimit">
+              <button type="button" data-value="3">3 秒</button>
+              <button type="button" data-value="5" class="is-active">5 秒</button>
+              <button type="button" data-value="8">8 秒</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><span>语音播报</span><small>中文语音指令</small></div>
+            <label class="switch"><input type="checkbox" id="voiceToggle" checked /><span></span></label>
+          </div>
+          <details class="more">
+            <summary>更多设置</summary>
+            <div class="more-body">
+              <div class="setting-row">
+                <div class="setting-label"><span>操作音效</span><small>按键与判定提示音</small></div>
+                <label class="switch"><input type="checkbox" id="soundToggle" checked /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>严格模式</span><small>考试中不公布单题结果</small></div>
+                <label class="switch"><input type="checkbox" id="strictToggle" /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>教练提示</span><small>指令下方显示正确操作</small></div>
+                <label class="switch"><input type="checkbox" id="hintToggle" /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label"><span>语音角色</span><small>系统中文语音</small></div>
+                <select id="voiceSelect" class="voice-select" aria-label="选择语音角色"></select>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="flow-card">
+          <span>考试流程</span>
+          <div class="flow-line">
+            <div><b>01</b>听语音指令</div>
+            <i></i>
+            <div><b>02</b>限时操作</div>
+            <i></i>
+            <div><b>03</b>自动判分</div>
+          </div>
+        </div>
+
+        <div class="home-actions">
+          <button class="primary" id="startBtn" type="button"><span>开始考试</span><kbd>Enter</kbd></button>
+          <button class="ghost" id="bankBtn2" type="button"><svg><use href="#i-book"/></svg>题库速查 · 13 项</button>
+        </div>
+        <p class="home-foot"><svg><use href="#i-clock"/></svg>语音播报结束后开始倒计时，超时即判错</p>
+      </section>
+
+      <section class="panel exam-panel" id="examPanel" hidden>
+        <div class="panel-head">
+          <div>
+            <span class="panel-kicker">灯光操作台</span>
+            <h3>按指令操作灯光</h3>
+          </div>
+          <span class="phase-chip" id="phaseChip">准备中</span>
+        </div>
+
+        <div class="control-group knob-group">
+          <div class="group-head"><span>灯光总开关</span><span class="keys"><kbd>0</kbd><kbd>1</kbd><kbd>2</kbd></span></div>
+          <div class="knob-wrap">
+            <div class="knob-ticks" id="knobTicks" aria-hidden="true"></div>
+            <button class="knob" id="knob" type="button" aria-label="旋转灯光总开关，当前为关闭" title="点击依次切换：关闭 → 示宽灯 → 前照灯">
+              <span class="knob-face" id="knobFace">
+                <span class="knob-pointer"></span>
+                <span class="knob-hub"></span>
+              </span>
+            </button>
+            <div class="knob-labels" role="group" aria-label="灯光总开关档位">
+              <button type="button" data-main="0" class="klabel is-active">关闭</button>
+              <button type="button" data-main="1" class="klabel">示宽灯</button>
+              <button type="button" data-main="2" class="klabel">前照灯</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-head"><span>远近光</span><span class="keys"><kbd>Q</kbd><kbd>W</kbd><kbd>空格</kbd></span></div>
+          <div class="seg beam-seg" role="group" aria-label="远近光">
+            <button type="button" class="seg-btn" data-beam="low" id="lowBtn">近光灯</button>
+            <button type="button" class="seg-btn" data-beam="high" id="highBtn">远光灯</button>
+          </div>
+          <button class="flash-btn" id="flashBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h11M11 7l5 5-5 5M19 6v12"/></svg>
+            拉动拨杆 · 交替远近光
+            <kbd>Space</kbd>
+          </button>
+        </div>
+
+        <div class="control-group aux-group">
+          <button class="aux-btn" id="fogBtn" type="button" aria-pressed="false">
+            <span class="aux-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h5a5 5 0 0 1 0 10H4z"/><path d="M13 9h7M13 13h7M13 17h7"/><path d="M2 19c1.5-1.2 3-1.2 4.5 0" opacity=".6"/></svg></span>
+            <span class="aux-main"><strong>雾灯</strong><small>需先开小灯</small></span>
+            <kbd>F</kbd>
+          </button>
+          <button class="aux-btn danger" id="hazardBtn" type="button" aria-pressed="false">
+            <span class="aux-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 22 20H2z"/><path d="M12 9.5v4.8M12 17.2v.1"/></svg></span>
+            <span class="aux-main"><strong>双闪</strong><small>危险报警闪光灯</small></span>
+            <kbd>H</kbd>
+          </button>
+        </div>
+
+        <div class="console-tip" id="consoleTip"><i></i><span>提示：远近光交替请连拉两次拨杆</span></div>
+
+        <div class="exam-meta">
+          <div><span>本次考试</span><strong id="examMetaCount">5 项</strong></div>
+          <div><span>每题限时</span><strong id="examMetaTime">5 秒</strong></div>
+          <div><span>判分规则</span><strong>全对合格</strong></div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="foot-left"><span class="live-dot"></span><span id="footStatus">按真实考试流程判分 · 灯光操作错误即不合格</span></div>
+    <div class="foot-keys">
+      <span><kbd>0</kbd><kbd>1</kbd><kbd>2</kbd> 总开关</span>
+      <span><kbd>Q</kbd><kbd>W</kbd> 近/远光</span>
+      <span><kbd>Space</kbd> 交替</span>
+      <span><kbd>F</kbd> 雾灯</span>
+      <span><kbd>H</kbd> 双闪</span>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="resultOverlay" hidden>
+  <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <button class="modal-close" id="resultClose" type="button" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+    <div class="result-top">
+      <div class="score-ring" id="scoreRing">
+        <div class="score-inner"><strong id="scoreNum">100</strong><span>分</span></div>
+      </div>
+      <div class="result-copy">
+        <span class="verdict" id="verdict">合格</span>
+        <h2 id="resultTitle">灯光考试通过</h2>
+        <p id="resultSub">全部 5 项操作正确，可以上车考试了。</p>
+      </div>
+    </div>
+    <div class="result-stats">
+      <div><span>正确题数</span><strong id="statCorrect">5 / 5</strong></div>
+      <div><span>平均反应</span><strong id="statTime">2.1 s</strong></div>
+      <div><span>考试用时</span><strong id="statTotal">0:42</strong></div>
+    </div>
+    <div class="review-head"><span>答题回顾</span><small>错误项会在下方给出正确操作</small></div>
+    <div class="review" id="reviewList"></div>
+    <div class="result-actions">
+      <button class="primary" id="againBtn" type="button"><svg><use href="#i-refresh"/></svg>再考一次</button>
+      <button class="ghost" id="wrongBtn" type="button">只练错题</button>
+      <button class="ghost" id="homeBtn" type="button">返回首页</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="bankOverlay" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bankTitle">
+    <header class="modal-head">
+      <div>
+        <span class="panel-kicker">灯光题库</span>
+        <h2 id="bankTitle">13 项夜间灯光场景</h2>
+      </div>
+      <button class="modal-close" id="bankClose" type="button" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="bank" role="tab" aria-selected="true">题库速查</button>
+      <button class="tab" data-tab="rules" role="tab" aria-selected="false">考试规则</button>
+    </div>
+    <div class="modal-body" id="bankPane">
+      <p class="pane-lead">点击喇叭可试听语音。真实考试从下列场景中随机抽取，全部操作正确才算合格。</p>
+      <div class="bank-list" id="bankList"></div>
+    </div>
+    <div class="modal-body" id="rulesPane" hidden>
+      <div class="rule-grid">
+        <section>
+          <h4>考试流程</h4>
+          <ol>
+            <li>语音播报场景指令，播报结束后开始计时。</li>
+            <li>在限定时间内完成对应的灯光操作。</li>
+            <li>系统自动判定，全部正确才算合格。</li>
+          </ol>
+        </section>
+        <section>
+          <h4>操作要点</h4>
+          <ul>
+            <li><b>总开关</b>：关闭 → 示宽灯 → 前照灯，三档循环。</li>
+            <li><b>远近光</b>：向前推为远光，回位为近光。</li>
+            <li><b>交替</b>：拉动拨杆两次，最终回到近光。</li>
+            <li><b>雾灯</b>：需先开启示宽灯或前照灯。</li>
+            <li><b>双闪</b>：独立开关，任何时候都可开启。</li>
+          </ul>
+        </section>
+        <section>
+          <h4>常见易错</h4>
+          <ul>
+            <li>跟车、会车误开远光。</li>
+            <li>交替只拉一次，次数不足。</li>
+            <li>雾天只开雾灯，忘开双闪。</li>
+            <li>临时停车仍开着前照灯，未切示宽灯。</li>
+          </ul>
+        </section>
+        <section>
+          <h4>说明</h4>
+          <p>各地车管所考试规则、语音措辞可能略有差异，本程序按通用小型汽车（C1/C2）夜间灯光考试规则设计，仅用于练习。</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay mini" id="confirmOverlay" hidden>
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h3 id="confirmTitle">退出本次考试？</h3>
+    <p>当前成绩将不会保存，返回首页后可以重新开始。</p>
+    <div class="confirm-actions">
+      <button class="ghost" id="confirmCancel" type="button">继续考试</button>
+      <button class="danger-btn" id="confirmExit" type="button">退出</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*!
+ * 科目三灯光模拟考试 — 核心逻辑
+ * 纯函数、无 DOM 依赖，可同时在浏览器与 Node 中运行。
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.LightCore = factory();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  /* 12 个夜间场景 + “请开启前照灯”，共 13 项 */
+  var SCENES = [
+    {
+      id: 'no-light',
+      text: '夜间在没有路灯、照明不良的道路上行驶',
+      type: 'high',
+      op: '开启远光灯',
+      short: '远光',
+      tip: '照明不良时用远光看得更远；一旦会车或跟车，要立即切回近光。'
+    },
+    {
+      id: 'follow',
+      text: '夜间同方向近距离跟车行驶',
+      type: 'low',
+      op: '开启近光灯',
+      short: '近光',
+      tip: '远光会通过后视镜晃到前车司机，近距离跟车必须用近光。'
+    },
+    {
+      id: 'narrow',
+      text: '夜间在窄路、窄桥与非机动车会车',
+      type: 'low',
+      op: '开启近光灯',
+      short: '近光',
+      tip: '窄路、窄桥会车空间小，近光避免晃到对方。'
+    },
+    {
+      id: 'meet',
+      text: '夜间与机动车会车',
+      type: 'low',
+      op: '开启近光灯',
+      short: '近光',
+      tip: '距对面来车 150 米以内必须改用近光。'
+    },
+    {
+      id: 'curve',
+      text: '夜间通过急弯、坡路',
+      type: 'alternate',
+      op: '交替使用远近光灯',
+      short: '交替',
+      tip: '弯道、坡路视线受阻，交替远近光提醒对向车辆。'
+    },
+    {
+      id: 'bridge',
+      text: '夜间通过拱桥、人行横道',
+      type: 'alternate',
+      op: '交替使用远近光灯',
+      short: '交替',
+      tip: '拱桥和人行横道是视线盲区，用交替光提示行人和车辆。'
+    },
+    {
+      id: 'crossroad',
+      text: '夜间通过没有交通信号灯控制的路口',
+      type: 'alternate',
+      op: '交替使用远近光灯',
+      short: '交替',
+      tip: '无信号灯路口用交替光提示横向来车。'
+    },
+    {
+      id: 'overtake',
+      text: '夜间超越前方车辆',
+      type: 'alternate',
+      op: '交替使用远近光灯',
+      short: '交替',
+      tip: '超车前交替远近光，提醒前车你准备超车。'
+    },
+    {
+      id: 'lit-road',
+      text: '夜间在照明良好的道路上行驶',
+      type: 'low',
+      op: '开启近光灯',
+      short: '近光',
+      tip: '路灯充足时用近光，远光反而会影响其他交通参与者。'
+    },
+    {
+      id: 'fog',
+      text: '雾天行驶',
+      type: 'fog',
+      op: '开启雾灯和危险报警闪光灯',
+      short: '雾灯+双闪',
+      tip: '雾灯穿透力强，双闪提示车辆位置；不要开远光，会被雾气反射。'
+    },
+    {
+      id: 'breakdown',
+      text: '夜间在道路上发生故障，妨碍交通又难以移动',
+      type: 'stop',
+      op: '开启示宽灯和危险报警闪光灯',
+      short: '示宽+双闪',
+      tip: '难以移动时先开示宽灯和双闪提醒后方来车，并在车后放置警示牌。'
+    },
+    {
+      id: 'park',
+      text: '夜间路边临时停车',
+      type: 'stop',
+      op: '开启示宽灯和危险报警闪光灯',
+      short: '示宽+双闪',
+      tip: '临时停车应关闭大灯，开启示宽灯和双闪示意车辆位置。'
+    }
+  ];
+
+  var HEADLAMP = {
+    id: 'headlamp',
+    text: '请开启前照灯',
+    type: 'headlamp',
+    op: '开启前照灯（近光）',
+    short: '前照灯',
+    tip: '听到指令先开启前照灯，默认使用近光。'
+  };
+
+  var TYPE_LABEL = {
+    headlamp: '开启前照灯',
+    high: '远光灯',
+    low: '近光灯',
+    alternate: '远近光交替',
+    fog: '雾灯 + 双闪',
+    stop: '示宽灯 + 双闪'
+  };
+
+  function initialState() {
+    return { main: 0, beam: 'low', fog: false, hazard: false, flashes: 0 };
+  }
+
+  function clone(s) {
+    return { main: s.main, beam: s.beam, fog: s.fog, hazard: s.hazard, flashes: s.flashes };
+  }
+
+  /* 总开关：0 关闭 / 1 示宽灯 / 2 前照灯 */
+  function setMain(state, value) {
+    var s = clone(state);
+    var v = Math.max(0, Math.min(2, value | 0));
+    s.main = v;
+    if (v !== 2) {
+      s.beam = 'low';
+    }
+    if (v === 0) {
+      s.fog = false;
+    }
+    return s;
+  }
+
+  function setBeam(state, beam) {
+    var s = clone(state);
+    if (s.main !== 2) return s;
+    var next = beam === 'high' ? 'high' : 'low';
+    if (next !== s.beam) {
+      s.beam = next;
+      s.flashes += 1;
+    }
+    return s;
+  }
+
+  /* 模拟“拉动拨杆”一次：记一次交替，最终回到近光 */
+  function flash(state) {
+    var s = clone(state);
+    if (s.main !== 2) return s;
+    s.beam = 'low';
+    s.flashes += 1;
+    return s;
+  }
+
+  function toggleFog(state) {
+    var s = clone(state);
+    if (s.main === 0) return s;
+    s.fog = !s.fog;
+    return s;
+  }
+
+  function toggleHazard(state) {
+    var s = clone(state);
+    s.hazard = !s.hazard;
+    return s;
+  }
+
+  /**
+   * 判断当前灯光状态是否满足题目要求。
+   * @returns {{pass:boolean, reason:string}}
+   */
+  function judge(question, state) {
+    var s = state;
+    switch (question.type) {
+      case 'headlamp':
+        return result(s.main === 2, s.main === 2 ? '前照灯已开启' : '前照灯未开启');
+      case 'high':
+        return result(
+          s.main === 2 && s.beam === 'high',
+          s.main !== 2 ? '前照灯未开启' : s.beam !== 'high' ? '当前不是远光灯' : ''
+        );
+      case 'low':
+        return result(
+          s.main === 2 && s.beam === 'low',
+          s.main !== 2 ? '前照灯未开启' : s.beam === 'high' ? '当前是远光灯' : ''
+        );
+      case 'alternate':
+        if (s.main !== 2) return result(false, '前照灯未开启');
+        if (s.flashes < 2) return result(false, '交替次数不足');
+        if (s.beam !== 'low') return result(false, '交替后未回到近光');
+        return result(true, '');
+      case 'fog':
+        if (!s.fog) return result(false, '未开启雾灯');
+        if (!s.hazard) return result(false, '未开启危险报警闪光灯');
+        if (s.main === 0) return result(false, '未开启示宽灯或前照灯');
+        if (s.beam === 'high') return result(false, '雾天不应使用远光');
+        return result(true, '');
+      case 'stop':
+        if (s.main !== 1) return result(false, s.main === 2 ? '未切换到示宽灯' : '未开启示宽灯');
+        if (!s.hazard) return result(false, '未开启危险报警闪光灯');
+        return result(true, '');
+      default:
+        return result(false, '未知题目');
+    }
+  }
+
+  function result(pass, reason) {
+    return { pass: !!pass, reason: reason || '' };
+  }
+
+  function stateText(s) {
+    var parts = [];
+    if (s.main === 0) {
+      parts.push('灯光关闭');
+    } else if (s.main === 1) {
+      parts.push('示宽灯');
+    } else {
+      parts.push(s.beam === 'high' ? '远光灯' : '近光灯');
+    }
+    if (s.fog) parts.push('雾灯');
+    if (s.hazard) parts.push('双闪');
+    return parts.join(' · ');
+  }
+
+  function shuffle(list, rng) {
+    var a = list.slice();
+    var random = rng || Math.random;
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(random() * (i + 1));
+      var t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  /* 避免连续三题答案完全相同，让考试更接近真实随机 */
+  function arrange(list) {
+    var a = list.slice();
+    for (var i = 2; i < a.length; i++) {
+      if (a[i].type === a[i - 1].type && a[i].type === a[i - 2].type) {
+        for (var j = i + 1; j < a.length; j++) {
+          if (a[j].type !== a[i].type) {
+            var t = a[i];
+            a[i] = a[j];
+            a[j] = t;
+            break;
+          }
+        }
+      }
+    }
+    return a;
+  }
+
+  /**
+   * 生成一份试卷：第一题固定“请开启前照灯”，随后随机抽取场景。
+   */
+  function createExam(options) {
+    options = options || {};
+    var count = options.sceneCount == null ? 4 : options.sceneCount;
+    count = Math.max(1, Math.min(SCENES.length, count | 0));
+    var bank = options.pool && options.pool.length ? options.pool : SCENES;
+    var picked = arrange(shuffle(bank, options.rng)).slice(0, count);
+    var list = [HEADLAMP].concat(picked).map(function (q) {
+      return {
+        id: q.id,
+        text: q.text,
+        type: q.type,
+        op: q.op,
+        short: q.short,
+        tip: q.tip
+      };
+    });
+    return list;
+  }
+
+  function score(results) {
+    var total = results.length || 1;
+    var correct = results.filter(function (r) { return r.pass; }).length;
+    var points = Math.round((correct / total) * 100);
+    var times = results.filter(function (r) { return typeof r.elapsed === 'number' && r.elapsed > 0; })
+      .map(function (r) { return r.elapsed; });
+    var avg = times.length ? times.reduce(function (a, b) { return a + b; }, 0) / times.length : 0;
+    return {
+      total: results.length,
+      correct: correct,
+      wrong: results.length - correct,
+      points: points,
+      passed: correct === results.length,
+      avgTime: avg
+    };
+  }
+
+  return {
+    SCENES: SCENES,
+    HEADLAMP: HEADLAMP,
+    TYPE_LABEL: TYPE_LABEL,
+    initialState: initialState,
+    setMain: setMain,
+    setBeam: setBeam,
+    flash: flash,
+    toggleFog: toggleFog,
+    toggleHazard: toggleHazard,
+    judge: judge,
+    stateText: stateText,
+    createExam: createExam,
+    score: score,
+    shuffle: shuffle
+  };
+});
+
+</script>
+<script>
+/* ==========================================================================
+   科目三 · 夜间灯光模拟考试 — 交互与考试流程
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  var core = window.LightCore;
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  var SETTINGS_KEY = 's3lights.settings.v1';
+  var DEFAULTS = {
+    sceneCount: 4,
+    timeLimit: 5,
+    voice: true,
+    sound: true,
+    strict: false,
+    hint: false,
+    voiceURI: ''
+  };
+
+  /* ---------------------------------------------------------------- 状态 */
+
+  var settings = loadSettings();
+  var state = {
+    view: 'home',
+    light: core.initialState(),
+    session: null,
+    demoIndex: 0,
+    demoTimer: 0,
+    timerRaf: 0,
+    pulseTimer: 0,
+    toastTimer: 0,
+    voices: [],
+    zhVoices: [],
+    voice: null,
+    speechResolve: null,
+    audio: null
+  };
+
+  var el = {};
+
+  /* ---------------------------------------------------------------- 工具 */
+
+  function loadSettings() {
+    try {
+      var raw = localStorage.getItem(SETTINGS_KEY);
+      if (raw) return Object.assign({}, DEFAULTS, JSON.parse(raw));
+    } catch (e) { /* ignore */ }
+    return Object.assign({}, DEFAULTS);
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ }
+  }
+
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function formatClock(ms) {
+    var total = Math.max(0, Math.round(ms / 1000));
+    var m = Math.floor(total / 60);
+    var s = total % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function setUse(button, id) {
+    var use = button && button.querySelector('use');
+    if (use) use.setAttribute('href', id);
+  }
+
+  /* ---------------------------------------------------------------- 音效 */
+
+  function audioCtx() {
+    if (!settings.sound) return null;
+    if (!state.audio) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      try { state.audio = new Ctx(); } catch (e) { return null; }
+    }
+    if (state.audio.state === 'suspended') state.audio.resume().catch(function () {});
+    return state.audio;
+  }
+
+  function tone(freq, dur, type, vol, delay) {
+    var ctx = audioCtx();
+    if (!ctx) return;
+    var t0 = ctx.currentTime + (delay || 0);
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol || 0.04), t0 + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.03);
+  }
+
+  var sfx = {
+    click: function () {
+      tone(1350, 0.035, 'square', 0.016);
+      tone(760, 0.045, 'triangle', 0.02, 0.012);
+    },
+    knob: function () {
+      tone(320, 0.055, 'triangle', 0.028);
+      tone(210, 0.06, 'sine', 0.024, 0.02);
+    },
+    ok: function () {
+      tone(680, 0.13, 'sine', 0.035);
+      tone(1020, 0.2, 'sine', 0.032, 0.09);
+    },
+    bad: function () {
+      tone(190, 0.22, 'sawtooth', 0.022);
+      tone(126, 0.3, 'sawtooth', 0.02, 0.11);
+    }
+  };
+
+  /* ---------------------------------------------------------------- 语音 */
+
+  function pickBestVoice(list) {
+    if (!list.length) return null;
+    var prefs = ['Xiaoxiao', 'Yunxi', 'Yunyang', 'Huihui', 'Tingting', 'Yaoyao', 'Kangkang', 'Natural', 'Chinese'];
+    for (var i = 0; i < prefs.length; i++) {
+      var hit = list.find(function (v) { return v.name.toLowerCase().indexOf(prefs[i].toLowerCase()) !== -1; });
+      if (hit) return hit;
+    }
+    var local = list.find(function (v) { return v.localService; });
+    return local || list[0];
+  }
+
+  function refreshVoices() {
+    if (!('speechSynthesis' in window)) {
+      state.zhVoices = [];
+      state.voice = null;
+      updateVoiceUI();
+      return;
+    }
+    var all = [];
+    try { all = window.speechSynthesis.getVoices() || []; } catch (e) { all = []; }
+    state.zhVoices = all.filter(function (v) {
+      return /^zh/i.test(v.lang) || /chinese|中文|xiaoxiao|huihui|yaoyao|tingting|yunxi|yunyang/i.test(v.name);
+    });
+    if (settings.voiceURI) {
+      state.voice = state.zhVoices.find(function (v) { return v.voiceURI === settings.voiceURI; }) || pickBestVoice(state.zhVoices);
+    } else {
+      state.voice = pickBestVoice(state.zhVoices);
+    }
+    renderVoiceSelect();
+    updateVoiceUI();
+  }
+
+  function renderVoiceSelect() {
+    if (!el.voiceSelect) return;
+    el.voiceSelect.innerHTML = '';
+    if (!state.zhVoices.length) {
+      var opt = document.createElement('option');
+      opt.textContent = '未检测到中文语音';
+      opt.value = '';
+      el.voiceSelect.appendChild(opt);
+      el.voiceSelect.disabled = true;
+      return;
+    }
+    el.voiceSelect.disabled = false;
+    state.zhVoices.forEach(function (v) {
+      var o = document.createElement('option');
+      o.value = v.voiceURI;
+      o.textContent = v.name + (v.localService ? '' : ' · 在线');
+      if (state.voice && v.voiceURI === state.voice.voiceURI) o.selected = true;
+      el.voiceSelect.appendChild(o);
+    });
+  }
+
+  function updateVoiceUI() {
+    if (!el.voicePill) return;
+    var text = el.voicePillText;
+    el.voicePill.classList.remove('is-ready', 'is-missing');
+    if (!settings.voice) {
+      text.textContent = '语音已关闭';
+      return;
+    }
+    if (state.voice) {
+      el.voicePill.classList.add('is-ready');
+      text.textContent = shortVoiceName(state.voice.name);
+    } else {
+      el.voicePill.classList.add('is-missing');
+      text.textContent = '无中文语音';
+    }
+  }
+
+  function shortVoiceName(name) {
+    var clean = String(name).replace(/^Microsoft\s+/i, '').replace(/\s*-\s*Chinese.*$/i, '').replace(/\s*\(.*\)$/, '');
+    return clean.length > 14 ? clean.slice(0, 14) + '…' : clean;
+  }
+
+  function speak(text) {
+    return new Promise(function (resolve) {
+      if (!settings.voice || !state.voice || !('speechSynthesis' in window)) {
+        setTimeout(resolve, 320);
+        return;
+      }
+      var done = false;
+      var timer = 0;
+      var finish = function () {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        if (state.speechResolve === finish) state.speechResolve = null;
+        resolve();
+      };
+      try {
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'zh-CN';
+        u.voice = state.voice;
+        u.rate = 0.94;
+        u.pitch = 1;
+        u.volume = 1;
+        u.onend = finish;
+        u.onerror = finish;
+        state.speechResolve = finish;
+        timer = setTimeout(finish, Math.min(16000, 1800 + text.length * 230));
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        finish();
+      }
+    });
+  }
+
+  function cancelSpeech() {
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    if (state.speechResolve) {
+      var fn = state.speechResolve;
+      state.speechResolve = null;
+      fn();
+    }
+  }
+
+  /* ---------------------------------------------------------------- 灯光渲染 */
+
+  function renderLights() {
+    var s = state.light;
+    el.scene.dataset.main = String(s.main);
+    el.scene.dataset.beam = s.beam;
+    el.scene.dataset.fog = s.fog ? '1' : '0';
+    el.scene.dataset.hazard = s.hazard ? '1' : '0';
+
+    var flags = {
+      position: s.main >= 1,
+      low: s.main === 2 && s.beam === 'low',
+      high: s.main === 2 && s.beam === 'high',
+      fog: s.fog,
+      hazard: s.hazard
+    };
+    $$('.telltale', el.telltales).forEach(function (node) {
+      node.classList.toggle('is-on', !!flags[node.dataset.t]);
+    });
+
+    el.stateCaption.innerHTML = '当前灯光 <b class="' + (s.main > 0 ? 'is-on' : '') + '">' + esc(core.stateText(s)) + '</b>';
+
+    var angle = s.main === 0 ? -62 : s.main === 1 ? 0 : 62;
+    el.knobFace.style.setProperty('--angle', angle + 'deg');
+    el.knob.classList.toggle('is-on', s.main > 0);
+    el.knob.setAttribute('aria-label', '旋转灯光总开关，当前为' + (s.main === 0 ? '关闭' : s.main === 1 ? '示宽灯' : '前照灯'));
+    $$('.klabel').forEach(function (b) {
+      b.classList.toggle('is-active', Number(b.dataset.main) === s.main);
+    });
+
+    el.lowBtn.classList.toggle('is-active', s.main === 2 && s.beam === 'low');
+    el.highBtn.classList.toggle('is-active', s.main === 2 && s.beam === 'high');
+    el.lowBtn.setAttribute('aria-disabled', String(s.main !== 2));
+    el.highBtn.setAttribute('aria-disabled', String(s.main !== 2));
+    el.flashBtn.setAttribute('aria-disabled', String(s.main !== 2));
+
+    el.fogBtn.classList.toggle('is-on', s.fog);
+    el.fogBtn.setAttribute('aria-pressed', String(s.fog));
+    el.fogBtn.setAttribute('aria-disabled', String(s.main === 0));
+
+    el.hazardBtn.classList.toggle('is-on', s.hazard);
+    el.hazardBtn.setAttribute('aria-pressed', String(s.hazard));
+  }
+
+  function pulseBeam() {
+    el.scene.classList.add('is-flashing');
+    clearTimeout(state.pulseTimer);
+    state.pulseTimer = setTimeout(function () { el.scene.classList.remove('is-flashing'); }, 190);
+  }
+
+  /* ---------------------------------------------------------------- 首页演示 */
+
+  var DEMO_STATES = [
+    { main: 2, beam: 'low' },
+    { main: 2, beam: 'high' },
+    { main: 1, hazard: true },
+    { main: 2, beam: 'low', fog: true, hazard: true }
+  ];
+
+  function startDemo() {
+    stopDemo();
+    if (state.view !== 'home') return;
+    state.demoIndex = 0;
+    applyDemoState();
+    state.demoTimer = setInterval(function () {
+      state.demoIndex = (state.demoIndex + 1) % DEMO_STATES.length;
+      applyDemoState();
+    }, 3400);
+  }
+
+  function stopDemo() {
+    if (state.demoTimer) clearInterval(state.demoTimer);
+    state.demoTimer = 0;
+  }
+
+  function applyDemoState() {
+    var d = DEMO_STATES[state.demoIndex];
+    state.light = {
+      main: d.main,
+      beam: d.beam || 'low',
+      fog: !!d.fog,
+      hazard: !!d.hazard,
+      flashes: 0
+    };
+    renderLights();
+    el.stageBadge.hidden = false;
+    el.stageBadge.innerHTML = '<i></i>夜间灯光演示';
+  }
+
+  /* ---------------------------------------------------------------- 视图切换 */
+
+  function enterHome() {
+    stopDemo();
+    cancelSpeech();
+    cancelAnimationFrame(state.timerRaf);
+    if (state.session) clearTimeout(state.session.advanceTimer);
+    state.session = null;
+    state.view = 'home';
+    document.body.dataset.view = 'home';
+    el.homePanel.hidden = false;
+    el.examPanel.hidden = true;
+    el.hud.hidden = true;
+    el.exitBtn.hidden = true;
+    el.resultOverlay.hidden = true;
+    el.bankOverlay.hidden = true;
+    el.confirmOverlay.hidden = true;
+    hideFeedback();
+    el.footStatus.textContent = '按真实考试流程判分 · 灯光操作错误即不合格';
+    startDemo();
+  }
+
+  function startExam(explicitQuestions) {
+    stopDemo();
+    cancelSpeech();
+    cancelAnimationFrame(state.timerRaf);
+    if (state.session) clearTimeout(state.session.advanceTimer);
+    hideFeedback();
+
+    state.view = 'exam';
+    document.body.dataset.view = 'exam';
+    el.homePanel.hidden = true;
+    el.examPanel.hidden = false;
+    el.hud.hidden = false;
+    el.exitBtn.hidden = false;
+    el.resultOverlay.hidden = true;
+    el.stageBadge.hidden = true;
+    el.consoleText.textContent = '提示：听到指令后再操作，倒计时结束前完成';
+
+    state.light = core.initialState();
+    renderLights();
+
+    var questions = explicitQuestions || core.createExam({ sceneCount: settings.sceneCount });
+    state.session = {
+      questions: questions,
+      index: -1,
+      results: [],
+      phase: 'idle',
+      qToken: 0,
+      startedAt: performance.now(),
+      qStart: 0,
+      deadline: 0,
+      advanceTimer: 0
+    };
+
+    el.examMetaCount.textContent = questions.length + ' 项';
+    el.examMetaTime.textContent = settings.timeLimit + ' 秒';
+    buildProgress(questions.length);
+    setPhase('准备中', '');
+    nextQuestion();
+  }
+
+  /* ---------------------------------------------------------------- 考试流程 */
+
+  function currentQuestion() {
+    var sess = state.session;
+    return sess ? sess.questions[sess.index] : null;
+  }
+
+  function nextQuestion() {
+    var sess = state.session;
+    if (!sess) return;
+    if (sess.index + 1 >= sess.questions.length) {
+      finishExam();
+      return;
+    }
+    sess.index += 1;
+    sess.qToken += 1;
+    var token = sess.qToken;
+    var q = sess.questions[sess.index];
+
+    sess.phase = 'speaking';
+    sess.qStart = 0;
+    sess.deadline = 0;
+    state.light = Object.assign({}, state.light, { flashes: 0 });
+    renderLights();
+
+    hideFeedback();
+    el.instrText.textContent = q.text;
+    el.instrKicker.classList.add('is-speaking');
+    $('span', el.instrKicker).textContent = '语音播报';
+    el.instrSub.textContent = '正在播报，请听清指令…';
+    el.skipBtn.hidden = false;
+    el.timer.hidden = false;
+    el.timer.classList.add('is-speaking');
+    el.timer.classList.remove('is-urgent');
+    el.timerCircle.style.strokeDashoffset = '0';
+    el.timerNum.textContent = String(settings.timeLimit);
+    setPhase('语音播报', '');
+    setProgress();
+    el.consoleText.textContent = '提示：听到指令后再操作，倒计时结束前完成';
+
+    var intro = sess.index === 0
+      ? '下面将进行夜间灯光模拟考试，请按语音指令在五秒内完成操作。'
+      : '';
+    runSpeech(intro + q.text, token);
+  }
+
+  function runSpeech(text, token) {
+    if (!settings.voice || !state.voice) {
+      wait(480).then(function () {
+        if (isCurrentQuestion(token) && state.session.phase === 'speaking') beginAnswering();
+      });
+      return;
+    }
+    speak(text).then(function () {
+      if (isCurrentQuestion(token) && state.session.phase === 'speaking') beginAnswering();
+    });
+  }
+
+  function isCurrentQuestion(token) {
+    return !!state.session && state.session.qToken === token;
+  }
+
+  function beginAnswering() {
+    var sess = state.session;
+    if (!sess || sess.phase !== 'speaking') return;
+    sess.phase = 'answering';
+    sess.qStart = performance.now();
+    sess.deadline = sess.qStart + settings.timeLimit * 1000;
+
+    el.skipBtn.hidden = true;
+    el.timer.classList.remove('is-speaking', 'is-urgent');
+    el.instrKicker.classList.remove('is-speaking');
+    $('span', el.instrKicker).textContent = '语音指令';
+    var q = currentQuestion();
+    if (settings.hint) {
+      el.instrSub.innerHTML = '参考操作：<b>' + esc(q.op) + '</b> · 限时 ' + settings.timeLimit + ' 秒';
+    } else {
+      el.instrSub.innerHTML = '请在 <b>' + settings.timeLimit + '</b> 秒内完成灯光操作';
+    }
+    setPhase('计时中', 'is-live');
+    el.timerNum.textContent = settings.timeLimit.toFixed(1);
+    tickTimer();
+
+    var token = sess.qToken;
+    setTimeout(function () {
+      var s = state.session;
+      if (!s || s.qToken !== token || s.phase !== 'answering') return;
+      if (core.judge(currentQuestion(), state.light).pass) {
+        completeQuestion(true);
+      }
+    }, 360);
+  }
+
+  function tickTimer() {
+    cancelAnimationFrame(state.timerRaf);
+    var loop = function () {
+      var sess = state.session;
+      if (!sess || sess.phase !== 'answering') return;
+      var total = settings.timeLimit * 1000;
+      var left = Math.max(0, sess.deadline - performance.now());
+      var frac = total > 0 ? left / total : 0;
+      el.timerCircle.style.strokeDashoffset = String(257.6 * (1 - frac));
+      el.timerNum.textContent = (left / 1000).toFixed(1);
+      el.phaseChip.textContent = '计时中 ' + (left / 1000).toFixed(1) + 's';
+      el.timer.classList.toggle('is-urgent', left <= 2000);
+      if (left <= 0) {
+        completeQuestion(false, '超时未完成操作', true);
+        return;
+      }
+      state.timerRaf = requestAnimationFrame(loop);
+    };
+    state.timerRaf = requestAnimationFrame(loop);
+  }
+
+  function completeQuestion(pass, reason, timeout) {
+    var sess = state.session;
+    if (!sess || sess.phase !== 'answering') return;
+    sess.phase = 'feedback';
+    cancelAnimationFrame(state.timerRaf);
+    var q = currentQuestion();
+    var judged = core.judge(q, state.light);
+    var elapsed = timeout ? settings.timeLimit : Math.max(0.1, (performance.now() - sess.qStart) / 1000);
+    var ok = !!pass;
+
+    sess.results.push({
+      q: q,
+      pass: ok,
+      elapsed: elapsed,
+      stateText: core.stateText(state.light),
+      reason: ok ? '' : (reason || judged.reason || '操作不符合要求'),
+      timeout: !!timeout
+    });
+
+    if (timeout) el.timerNum.textContent = '0.0';
+    el.timer.classList.remove('is-urgent');
+    el.skipBtn.hidden = true;
+    markDot(sess.index, ok);
+    setPhase(ok ? '正确' : '错误', ok ? 'is-live' : 'is-bad');
+
+    if (ok) {
+      sfx.ok();
+    } else {
+      sfx.bad();
+    }
+
+    if (ok) {
+      showFeedback('ok', '操作正确', q.op);
+      el.consoleText.textContent = '刚刚：' + q.op;
+    } else if (settings.strict) {
+      showFeedback('neutral', '已记录', '结果将在考试结束后统一公布');
+      el.consoleText.textContent = '刚刚：操作已记录';
+    } else {
+      showFeedback('bad', timeout ? '超时未完成' : '操作错误', '正确操作：' + q.op);
+      el.consoleText.textContent = '正确操作：' + q.op;
+    }
+
+    var delay = ok ? 1050 : settings.strict ? 850 : 1900;
+    clearTimeout(sess.advanceTimer);
+    sess.advanceTimer = setTimeout(function () {
+      if (state.session === sess) nextQuestion();
+    }, delay);
+  }
+
+  function finishExam() {
+    var sess = state.session;
+    if (!sess) return;
+    sess.phase = 'done';
+    cancelAnimationFrame(state.timerRaf);
+    cancelSpeech();
+    hideFeedback();
+    setPhase('已结束', '');
+
+    var stats = core.score(sess.results);
+    var duration = performance.now() - sess.startedAt;
+    renderResult(sess, stats, duration);
+    el.resultOverlay.hidden = false;
+    el.hud.hidden = true;
+    el.footStatus.textContent = '考试结束 · ' + (stats.passed ? '合格' : '不合格');
+
+    if (settings.voice && state.voice) {
+      speak(stats.passed ? '考试结束，全部操作正确，考试合格。' : '考试结束，考试不合格，请再练习一次。');
+    }
+  }
+
+  function setPhase(text, cls) {
+    el.phaseChip.textContent = text;
+    el.phaseChip.className = 'phase-chip' + (cls ? ' ' + cls : '');
+  }
+
+  function buildProgress(count) {
+    el.progressDots.innerHTML = '';
+    for (var i = 0; i < count; i++) {
+      var d = document.createElement('span');
+      d.className = 'dot';
+      el.progressDots.appendChild(d);
+    }
+  }
+
+  function setProgress() {
+    var sess = state.session;
+    if (!sess) return;
+    var dots = $$('.dot', el.progressDots);
+    dots.forEach(function (d, i) { d.classList.toggle('is-now', i === sess.index); });
+    el.progressText.textContent = '第 ' + (sess.index + 1) + ' / ' + sess.questions.length + ' 项';
+    el.footStatus.textContent = '第 ' + (sess.index + 1) + ' / ' + sess.questions.length + ' 项 · 每题限时 ' + settings.timeLimit + ' 秒';
+  }
+
+  function markDot(index, ok) {
+    var dots = $$('.dot', el.progressDots);
+    var d = dots[index];
+    if (!d) return;
+    d.classList.remove('is-now');
+    d.classList.add(ok ? 'is-done' : 'is-bad');
+  }
+
+  /* ---------------------------------------------------------------- 反馈 */
+
+  function showFeedback(kind, title, sub) {
+    el.feedback.dataset.kind = kind;
+    var icon = kind === 'ok' ? '#i-check' : kind === 'bad' ? '#i-x' : '#i-clock';
+    setUse(el.feedback.querySelector('.fb-icon'), icon);
+    el.feedback.querySelector('.fb-text strong').textContent = title;
+    el.feedback.querySelector('.fb-text span').textContent = sub;
+    el.feedback.classList.add('is-show');
+  }
+
+  function hideFeedback() {
+    el.feedback.classList.remove('is-show');
+  }
+
+  function toast(msg, warn) {
+    el.toast.textContent = msg;
+    el.toast.classList.toggle('is-warn', !!warn);
+    el.toast.classList.add('is-show');
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(function () { el.toast.classList.remove('is-show'); }, 2200);
+  }
+
+  /* ---------------------------------------------------------------- 操作 */
+
+  function canOperate() {
+    if (!state.session) return false;
+    if (state.session.phase === 'answering') return true;
+    if (state.session.phase === 'speaking') {
+      toast('请等语音播报结束后再操作');
+      return false;
+    }
+    return false;
+  }
+
+  function setLight(next, label, sound) {
+    if (!next) return;
+    var prev = state.light;
+    if (prev.main === next.main && prev.beam === next.beam && prev.fog === next.fog && prev.hazard === next.hazard) return;
+    state.light = next;
+    renderLights();
+    if (sound !== false) sfx.click();
+    if (label) el.consoleText.textContent = '刚刚：' + label;
+    afterAction();
+  }
+
+  function actMain(value) {
+    if (!canOperate()) return;
+    var next = core.setMain(state.light, value);
+    if (next.main === state.light.main) return;
+    sfx.knob();
+    setLight(next, value === 0 ? '关闭灯光' : value === 1 ? '开启示宽灯' : '开启前照灯', false);
+  }
+
+  function actBeam(beam) {
+    if (!canOperate()) return;
+    if (state.light.main !== 2) {
+      toast('请先开启前照灯');
+      return;
+    }
+    var next = core.setBeam(state.light, beam);
+    if (next.beam === state.light.beam) return;
+    setLight(next, beam === 'high' ? '切换远光灯' : '切换近光灯');
+  }
+
+  function actFlash() {
+    if (!canOperate()) return;
+    if (state.light.main !== 2) {
+      toast('请先开启前照灯');
+      return;
+    }
+    state.light = core.flash(state.light);
+    renderLights();
+    pulseBeam();
+    sfx.click();
+    el.consoleText.textContent = '刚刚：交替远近光（' + state.light.flashes + ' 次）';
+    afterAction();
+  }
+
+  function actFog() {
+    if (!canOperate()) return;
+    if (state.light.main === 0) {
+      toast('请先开启示宽灯或前照灯');
+      return;
+    }
+    var next = core.toggleFog(state.light);
+    setLight(next, next.fog ? '开启雾灯' : '关闭雾灯');
+  }
+
+  function actHazard() {
+    if (!canOperate()) return;
+    var next = core.toggleHazard(state.light);
+    setLight(next, next.hazard ? '开启危险报警闪光灯' : '关闭危险报警闪光灯');
+  }
+
+  function afterAction() {
+    var sess = state.session;
+    if (!sess || sess.phase !== 'answering') return;
+    var q = currentQuestion();
+    if (!q) return;
+    if (core.judge(q, state.light).pass) completeQuestion(true);
+  }
+
+  /* ---------------------------------------------------------------- 成绩 */
+
+  function renderResult(sess, stats, duration) {
+    el.scoreRing.style.setProperty('--pct', String(stats.points));
+    el.scoreRing.style.setProperty('--ring', stats.passed ? 'var(--green)' : 'var(--red)');
+    el.scoreNum.textContent = String(stats.points);
+
+    el.verdict.textContent = stats.passed ? '合格' : '不合格';
+    el.verdict.classList.toggle('is-bad', !stats.passed);
+    el.resultTitle.textContent = stats.passed ? '灯光考试通过' : '灯光考试未通过';
+    el.resultSub.textContent = stats.passed
+      ? '全部 ' + stats.total + ' 项操作正确，可以上车考试了。'
+      : '有 ' + stats.wrong + ' 项操作错误。真实考试中任何一项错误都会判定不合格。';
+
+    el.statCorrect.textContent = stats.correct + ' / ' + stats.total;
+    el.statTime.textContent = stats.avgTime.toFixed(1) + ' s';
+    el.statTotal.textContent = formatClock(duration);
+
+    el.reviewList.innerHTML = sess.results.map(function (r, i) {
+      var ok = r.pass;
+      return '<div class="review-row ' + (ok ? '' : 'is-bad') + '">' +
+        '<div class="rv-num">' + String(i + 1).padStart(2, '0') + '</div>' +
+        '<div class="rv-main">' +
+          '<p>' + esc(r.q.text) + '</p>' +
+          '<div class="rv-meta">你的操作：<b>' + esc(r.stateText) + '</b>' +
+            (ok ? '' : '　正确操作：<b>' + esc(r.q.op) + '</b>') +
+          '</div>' +
+          (ok ? '' : '<div class="rv-tip">' + esc(r.q.tip) + '</div>') +
+        '</div>' +
+        (r.elapsed ? '<div class="rv-time">' + r.elapsed.toFixed(1) + 's</div>' : '') +
+        '<div class="rv-tag"><svg><use href="' + (ok ? '#i-check' : '#i-x') + '"/></svg></div>' +
+      '</div>';
+    }).join('');
+
+    var wrong = getWrongQuestions(sess.results);
+    el.wrongBtn.disabled = wrong.length === 0;
+    el.wrongBtn.title = wrong.length ? '' : '本次全部正确，没有错题';
+  }
+
+  function getWrongQuestions(results) {
+    var seen = {};
+    var out = [];
+    results.forEach(function (r) {
+      if (r.pass) return;
+      if (seen[r.q.id]) return;
+      seen[r.q.id] = true;
+      out.push(r.q);
+    });
+    return out;
+  }
+
+  function closeResult() {
+    el.resultOverlay.hidden = true;
+    enterHome();
+  }
+
+  function practiceWrong() {
+    if (!state.session) return;
+    var wrong = getWrongQuestions(state.session.results);
+    if (!wrong.length) return;
+    var hasHeadlamp = wrong.some(function (q) { return q.id === 'headlamp'; });
+    var questions = hasHeadlamp ? wrong.slice() : [core.HEADLAMP].concat(wrong);
+    el.resultOverlay.hidden = true;
+    startExam(questions);
+  }
+
+  /* ---------------------------------------------------------------- 题库 */
+
+  function buildBank() {
+    var all = [core.HEADLAMP].concat(core.SCENES);
+    el.bankList.innerHTML = all.map(function (q, i) {
+      return '<article class="bank-item">' +
+        '<div class="bi-num">' + String(i + 1).padStart(2, '0') + '</div>' +
+        '<div class="bi-body">' +
+          '<h4>' + esc(q.text) + '</h4>' +
+          '<p class="bi-op"><b>正确操作：</b>' + esc(q.op) + '</p>' +
+          '<p class="bi-tip">' + esc(q.tip) + '</p>' +
+        '</div>' +
+        '<button class="bi-speak" type="button" data-text="' + esc(q.text) + '" title="试听语音">' +
+          '<svg><use href="#i-speaker"/></svg>' +
+        '</button>' +
+      '</article>';
+    }).join('');
+  }
+
+  function openBank(tab) {
+    if (state.session && state.session.phase !== 'done' && state.view === 'exam') {
+      toast('考试进行中，暂时无法查看题库');
+      return;
+    }
+    el.bankOverlay.hidden = false;
+    switchTab(tab || 'bank');
+  }
+
+  function switchTab(name) {
+    $$('.tab').forEach(function (t) {
+      var on = t.dataset.tab === name;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', String(on));
+    });
+    el.bankPane.hidden = name !== 'bank';
+    el.rulesPane.hidden = name !== 'rules';
+  }
+
+  /* ---------------------------------------------------------------- 设置 */
+
+  function syncSettingsUI() {
+    $$('[data-setting]').forEach(function (group) {
+      var key = group.dataset.setting;
+      $$('button', group).forEach(function (b) {
+        b.classList.toggle('is-active', Number(b.dataset.value) === Number(settings[key]));
+      });
+    });
+    el.voiceToggle.checked = !!settings.voice;
+    el.soundToggle.checked = !!settings.sound;
+    el.strictToggle.checked = !!settings.strict;
+    el.hintToggle.checked = !!settings.hint;
+    el.soundBtn.setAttribute('aria-pressed', String(!!settings.sound));
+    setUse(el.soundBtn, settings.sound ? '#i-volume' : '#i-mute');
+    el.soundBtn.classList.toggle('is-off', !settings.sound);
+  }
+
+  function updateSetting(key, value) {
+    settings[key] = value;
+    saveSettings();
+    syncSettingsUI();
+    if (key === 'voice') updateVoiceUI();
+  }
+
+  /* ---------------------------------------------------------------- 初始化图形 */
+
+  function buildStars() {
+    var seed = 20261107;
+    var rnd = function () {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    };
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < 86; i++) {
+      var c = document.createElementNS(SVG_NS, 'circle');
+      var x = rnd() * 1000;
+      var y = rnd() * 430;
+      var r = 0.5 + rnd() * 1.5;
+      c.setAttribute('cx', x.toFixed(1));
+      c.setAttribute('cy', y.toFixed(1));
+      c.setAttribute('r', r.toFixed(2));
+      c.setAttribute('opacity', (0.25 + rnd() * 0.6).toFixed(2));
+      c.style.animationDelay = (rnd() * 4.5).toFixed(2) + 's';
+      frag.appendChild(c);
+    }
+    el.stars.appendChild(frag);
+  }
+
+  function buildCityWindows() {
+    var seed = 7719;
+    var rnd = function () {
+      seed = (seed * 48271) % 2147483647;
+      return seed / 2147483647;
+    };
+    var frag = document.createDocumentFragment();
+    var colors = ['#ffcf7a', '#ffdda6', '#8fd7ff', '#ffe9c2'];
+    for (var i = 0; i < 110; i++) {
+      var x = rnd() * 520;
+      var y = 452 + rnd() * 56;
+      var r = document.createElementNS(SVG_NS, 'rect');
+      r.setAttribute('x', x.toFixed(1));
+      r.setAttribute('y', y.toFixed(1));
+      r.setAttribute('width', (1.4 + rnd() * 2.4).toFixed(1));
+      r.setAttribute('height', (1.6 + rnd() * 2.6).toFixed(1));
+      r.setAttribute('fill', colors[Math.floor(rnd() * colors.length)]);
+      r.setAttribute('opacity', (0.15 + rnd() * 0.5).toFixed(2));
+      frag.appendChild(r);
+    }
+    el.cityWindows.appendChild(frag);
+  }
+
+  function buildKnobTicks() {
+    var frag = document.createDocumentFragment();
+    for (var deg = -75; deg <= 75; deg += 15) {
+      var s = document.createElement('span');
+      s.style.transform = 'rotate(' + deg + 'deg) translateY(-82px)';
+      if (deg === -60 || deg === 0 || deg === 60) s.className = 'is-major';
+      frag.appendChild(s);
+    }
+    el.knobTicks.appendChild(frag);
+  }
+
+  /* ---------------------------------------------------------------- 事件绑定 */
+
+  function cacheDom() {
+    el.scene = $('#scene');
+    el.stage = $('#stage');
+    el.homePanel = $('#homePanel');
+    el.examPanel = $('#examPanel');
+    el.hud = $('#hud');
+    el.stageBadge = $('#stageBadge');
+    el.voicePill = $('#voicePill');
+    el.voicePillText = $('#voicePillText');
+    el.bankBtn = $('#bankBtn');
+    el.helpBtn = $('#helpBtn');
+    el.soundBtn = $('#soundBtn');
+    el.fullBtn = $('#fullBtn');
+    el.exitBtn = $('#exitBtn');
+    el.startBtn = $('#startBtn');
+    el.bankBtn2 = $('#bankBtn2');
+    el.knob = $('#knob');
+    el.knobFace = $('#knobFace');
+    el.knobTicks = $('#knobTicks');
+    el.lowBtn = $('#lowBtn');
+    el.highBtn = $('#highBtn');
+    el.flashBtn = $('#flashBtn');
+    el.fogBtn = $('#fogBtn');
+    el.hazardBtn = $('#hazardBtn');
+    el.phaseChip = $('#phaseChip');
+    el.consoleText = $('#consoleTip span');
+    el.examMetaCount = $('#examMetaCount');
+    el.examMetaTime = $('#examMetaTime');
+    el.progressDots = $('#progressDots');
+    el.progressText = $('#progressText');
+    el.skipBtn = $('#skipBtn');
+    el.instrText = $('#instrText');
+    el.instrSub = $('#instrSub');
+    el.instrKicker = $('#instrKicker');
+    el.timer = $('#timer');
+    el.timerCircle = $('#timerCircle');
+    el.timerNum = $('#timerNum');
+    el.telltales = $('#telltales');
+    el.stateCaption = $('#stateCaption');
+    el.feedback = $('#feedback');
+    el.resultOverlay = $('#resultOverlay');
+    el.resultClose = $('#resultClose');
+    el.scoreRing = $('#scoreRing');
+    el.scoreNum = $('#scoreNum');
+    el.verdict = $('#verdict');
+    el.resultTitle = $('#resultTitle');
+    el.resultSub = $('#resultSub');
+    el.statCorrect = $('#statCorrect');
+    el.statTime = $('#statTime');
+    el.statTotal = $('#statTotal');
+    el.reviewList = $('#reviewList');
+    el.againBtn = $('#againBtn');
+    el.wrongBtn = $('#wrongBtn');
+    el.homeBtn = $('#homeBtn');
+    el.bankOverlay = $('#bankOverlay');
+    el.bankClose = $('#bankClose');
+    el.bankList = $('#bankList');
+    el.bankPane = $('#bankPane');
+    el.rulesPane = $('#rulesPane');
+    el.confirmOverlay = $('#confirmOverlay');
+    el.confirmCancel = $('#confirmCancel');
+    el.confirmExit = $('#confirmExit');
+    el.toast = $('#toast');
+    el.footStatus = $('#footStatus');
+    el.voiceToggle = $('#voiceToggle');
+    el.soundToggle = $('#soundToggle');
+    el.strictToggle = $('#strictToggle');
+    el.hintToggle = $('#hintToggle');
+    el.voiceSelect = $('#voiceSelect');
+    el.stars = $('#stars');
+    el.cityWindows = $('#cityWindows');
+  }
+
+  function bindEvents() {
+    el.startBtn.addEventListener('click', function () { startExam(); });
+    el.bankBtn.addEventListener('click', function () { openBank('bank'); });
+    el.bankBtn2.addEventListener('click', function () { openBank('bank'); });
+    el.helpBtn.addEventListener('click', function () { openBank('rules'); });
+    el.bankClose.addEventListener('click', function () { el.bankOverlay.hidden = true; });
+    el.bankOverlay.addEventListener('click', function (e) {
+      if (e.target === el.bankOverlay) el.bankOverlay.hidden = true;
+    });
+
+    $$('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () { switchTab(tab.dataset.tab); });
+    });
+
+    el.bankList.addEventListener('click', function (e) {
+      var btn = e.target.closest('.bi-speak');
+      if (!btn) return;
+      if (!state.voice) { toast('未检测到中文语音', true); return; }
+      cancelSpeech();
+      speak(btn.dataset.text);
+    });
+
+    el.exitBtn.addEventListener('click', function () {
+      cancelSpeech();
+      el.confirmOverlay.hidden = false;
+    });
+    el.confirmCancel.addEventListener('click', function () {
+      el.confirmOverlay.hidden = true;
+    });
+    el.confirmExit.addEventListener('click', function () {
+      el.confirmOverlay.hidden = true;
+      enterHome();
+    });
+    el.confirmOverlay.addEventListener('click', function (e) {
+      if (e.target === el.confirmOverlay) el.confirmOverlay.hidden = true;
+    });
+
+    el.resultClose.addEventListener('click', closeResult);
+    el.homeBtn.addEventListener('click', closeResult);
+    el.againBtn.addEventListener('click', function () {
+      el.resultOverlay.hidden = true;
+      startExam();
+    });
+    el.wrongBtn.addEventListener('click', practiceWrong);
+    el.resultOverlay.addEventListener('click', function (e) {
+      if (e.target === el.resultOverlay) closeResult();
+    });
+
+    el.skipBtn.addEventListener('click', function () {
+      var sess = state.session;
+      if (!sess || sess.phase !== 'speaking') return;
+      sess.qToken += 1;
+      cancelSpeech();
+      beginAnswering();
+    });
+
+    el.knob.addEventListener('click', function () {
+      if (!canOperate()) return;
+      var next = state.light.main >= 2 ? 0 : state.light.main + 1;
+      actMain(next);
+    });
+    $$('.klabel').forEach(function (b) {
+      b.addEventListener('click', function () { actMain(Number(b.dataset.main)); });
+    });
+    el.lowBtn.addEventListener('click', function () { actBeam('low'); });
+    el.highBtn.addEventListener('click', function () { actBeam('high'); });
+    el.flashBtn.addEventListener('click', actFlash);
+    el.fogBtn.addEventListener('click', actFog);
+    el.hazardBtn.addEventListener('click', actHazard);
+
+    $$('[data-setting]').forEach(function (group) {
+      group.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-value]');
+        if (!btn) return;
+        var key = group.dataset.setting;
+        updateSetting(key, Number(btn.dataset.value));
+        if (state.view === 'home') {
+          el.footStatus.textContent = '设置已保存 · 每题限时 ' + settings.timeLimit + ' 秒';
+        }
+      });
+    });
+
+    el.voiceToggle.addEventListener('change', function () {
+      updateSetting('voice', el.voiceToggle.checked);
+      if (settings.voice && state.voice) speak('语音播报已开启');
+    });
+    el.soundToggle.addEventListener('change', function () {
+      updateSetting('sound', el.soundToggle.checked);
+      if (settings.sound) sfx.click();
+    });
+    el.strictToggle.addEventListener('change', function () { updateSetting('strict', el.strictToggle.checked); });
+    el.hintToggle.addEventListener('change', function () { updateSetting('hint', el.hintToggle.checked); });
+
+    el.voiceSelect.addEventListener('change', function () {
+      settings.voiceURI = el.voiceSelect.value;
+      saveSettings();
+      state.voice = state.zhVoices.find(function (v) { return v.voiceURI === settings.voiceURI; }) || state.voice;
+      updateVoiceUI();
+      sfx.click();
+      if (state.voice) speak('已切换语音');
+    });
+
+    el.voicePill.addEventListener('click', function () {
+      if (state.session && state.session.phase !== 'done') {
+        toast('考试中请专注听语音指令');
+        return;
+      }
+      if (!settings.voice) { toast('语音播报已关闭，可在首页设置中开启', true); return; }
+      if (!state.voice) { toast('未检测到中文语音，将只显示文字指令', true); return; }
+      cancelSpeech();
+      speak('夜间灯光模拟考试，请开启前照灯。');
+    });
+
+    el.soundBtn.addEventListener('click', function () {
+      updateSetting('sound', !settings.sound);
+      if (settings.sound) sfx.click();
+      toast(settings.sound ? '操作音效已开启' : '操作音效已关闭');
+    });
+
+    el.fullBtn.addEventListener('click', function () {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(function () {
+          toast('当前浏览器不支持全屏', true);
+        });
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen().catch(function () {});
+      }
+    });
+
+    document.addEventListener('keydown', onKeydown);
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
+    }
+
+    window.addEventListener('beforeunload', function () {
+      cancelSpeech();
+    });
+  }
+
+  function onKeydown(e) {
+    var tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+    if (e.key === 'Escape') {
+      if (!el.confirmOverlay.hidden) { el.confirmOverlay.hidden = true; return; }
+      if (!el.bankOverlay.hidden) { el.bankOverlay.hidden = true; return; }
+      if (!el.resultOverlay.hidden) { closeResult(); return; }
+      if (state.view === 'exam' && state.session) {
+        cancelSpeech();
+        el.confirmOverlay.hidden = false;
+      }
+      return;
+    }
+
+    if (!el.resultOverlay.hidden) {
+      if (e.key === 'Enter') { el.againBtn.click(); }
+      return;
+    }
+    if (!el.bankOverlay.hidden || !el.confirmOverlay.hidden) return;
+
+    if (e.key === 'Enter') {
+      if (state.view === 'home') startExam();
+      return;
+    }
+    if (state.view !== 'exam' || !state.session) return;
+
+    if (e.code === 'Space') {
+      e.preventDefault();
+      actFlash();
+      return;
+    }
+
+    var key = e.key.toLowerCase();
+    if (key === '0' || key === '1' || key === '2') {
+      e.preventDefault();
+      actMain(Number(key));
+      return;
+    }
+    if (key === 'q') { e.preventDefault(); actBeam('low'); return; }
+    if (key === 'w') { e.preventDefault(); actBeam('high'); return; }
+    if (key === 'e') { e.preventDefault(); actFlash(); return; }
+    if (key === 'f') { e.preventDefault(); actFog(); return; }
+    if (key === 'h') { e.preventDefault(); actHazard(); }
+  }
+
+  /* ---------------------------------------------------------------- 启动 */
+
+  function init() {
+    cacheDom();
+    buildStars();
+    buildCityWindows();
+    buildKnobTicks();
+    buildBank();
+    syncSettingsUI();
+    bindEvents();
+
+    state.light = core.initialState();
+    renderLights();
+    state.view = 'home';
+    startDemo();
+    refreshVoices();
+    setTimeout(refreshVoices, 400);
+    setTimeout(refreshVoices, 1400);
+
+    // 便于自动化测试与调试
+    window.__lights = {
+      core: core,
+      app: {
+        state: state,
+        settings: settings,
+        startExam: startExam,
+        enterHome: enterHome,
+        actMain: actMain,
+        actBeam: actBeam,
+        actFlash: actFlash,
+        actFog: actFog,
+        actHazard: actHazard,
+        finishExam: finishExam,
+        beginAnswering: beginAnswering,
+        skipSpeech: function () { el.skipBtn.click(); },
+        renderLights: renderLights
+      }
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>
